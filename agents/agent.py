@@ -13,14 +13,12 @@ class Agent:
 
     def decide_contribution(self):
         # for the initial moment the endowment = contribution
-        if  self.payoff >+ 2:
-            self.contribution = self.endowment
-        else:
-            self.contribution = 1
+        self.contribution = self.endowment
 
 
-    def receive_payoff(self):
-        pass
+    def receive_payoff(self, payoff: int ):
+        self.payoff = payoff
+        self.endowment += payoff
 
     def to_string(self):
         """
