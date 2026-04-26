@@ -4,6 +4,10 @@ from game import payoff
 
 
 class Agent:
+    """
+    Agent class that represents the agent's strategy and keeps info about agent's endowment and contribution.
+    An agent is a minimal element of the game.
+    """
     def __init__(self, identifier: int, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
         self.identifier = identifier
         self.strategy = strategy
@@ -12,11 +16,22 @@ class Agent:
         self.payoff = payoff
 
     def decide_contribution(self):
-        # for the initial moment the endowment = contribution
-        self.contribution = self.endowment
+        """
+        Decide how much contribution would be made.
+        """
+        if self.strategy == "coop":
+            # for the initial moment the endowment = contribution
+            self.contribution = self.endowment
+        if self.strategy == "defect":
+            self.contribution = 0
+        if self.strategy == "random":
+            self.contribution = np.random.randint(low=0, high=self.endowment)
 
 
     def receive_payoff(self, payoff: int ):
+        """
+        Update the agent's contribution and payoff.
+        """
         self.payoff = payoff
         self.endowment += payoff
 

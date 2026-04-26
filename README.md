@@ -4,6 +4,9 @@ that represents everyday situations (e.g. paying taxes) modelled within the fram
 provide a set of tools for running scientific experiments. 
 
 ## Project Structure
+
+You can run a mock game by using `python main.py`
+
 ```pycon
 public_goods_game/
 ├── main.py                 # Entry point: run simulations, collect results
