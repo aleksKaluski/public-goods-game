@@ -26,6 +26,7 @@ class PublicGoodsGame:
         self.factor = factor # factor that multiplies the payoff from public pot
         self.public_goods = 0
 
+        # initialize various agents
         for key in strategy:
             for i in range(strategy[key]): self.agents.append(Agent(i, endowment, key))
 
@@ -57,7 +58,7 @@ class PublicGoodsGame:
         n_agents_contributed = 0
         for agent in self.agents:
             agent.decide_contribution()
-            agent.to_string()
+            # agent.to_string()
 
             contribution = agent.contribution
             total_contributions += contribution
@@ -66,7 +67,10 @@ class PublicGoodsGame:
                 n_agents_contributed += 1
 
         # multiply them by a factor
-        self.public_goods = total_contributions*self.factor + total_contributions
+        if self.factor < 1:
+            self.public_goods = total_contributions * self.factor + total_contributions
+        else:
+            self.public_goods = total_contributions*self.factor
 
         # give payoff to agents
         list_of_payoffs = []
