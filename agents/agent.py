@@ -46,4 +46,12 @@ class Agent:
         print(f"Strategy: {self.strategy}")
         print("-"*20)
 
+    def check_neighbours(self, range):
+        #look at the neighbours
+        print()
+
+    def vote(self):
+        #vote for one of the checked neighbors
+        check_neighbours(3)
+
 

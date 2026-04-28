@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\agents",
+    "\\analysis",
+    "\\dynamics",
+    "\\game",
+    "\\network",
+    "\\simulation",
+    "\\tests",
+    "\\visualization"
+  ],
+  "SelectedNode": "\\dynamics\\migration.py",
+  "PreviewInSolutionExplorer": false
+}
