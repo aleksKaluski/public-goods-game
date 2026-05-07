@@ -57,6 +57,7 @@ class Agent:
         print(f"Strategy: {self.strategy}")
         print("-"*20)
 
+    #Move this to the world class sen agent position check in neighbourhoods
     # def check_neighbours(self, range):
     #     #look at the neighbours
     #     print()
