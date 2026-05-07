@@ -9,31 +9,42 @@ class Agent:
     An agent is a minimal element of the game.
     """
     def __init__(self, identifier: int, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
-        self.identifier = identifier
-        self.strategy = strategy
-        self.endowment = endowment
-        self.contribution = contribution
-        self.payoff = payoff
+        self.identifier = identifier # id
+        self.strategy = strategy # type of strategy
+        self.endowment = endowment # current money of an agent
+        self.contribution = contribution # how much the agent will contribute
+        self.payoff = payoff # agent's payoff
+
+        self.cumulative_payoff = 0 # payoffs in the rounds
+        self.contribution_history = [] # list of contributions per round
+        self.payoff_history = [] # list of payoffs per round
+
 
     def decide_contribution(self):
         """
-        Decide how much contribution would be made.
+        Decide how much contribution would be made. Substitute contribution from endowment.
         """
         if self.strategy == "coop":
             # for the initial moment the endowment = contribution
-            self.contribution = self.endowment
+            contribution = self.endowment
         if self.strategy == "defect":
-            self.contribution = 0
+            contribution = 0
         if self.strategy == "random":
-            self.contribution = np.random.randint(low=0, high=self.endowment)
+            contribution = np.random.randint(low=0, high=self.endowment)
+        try:
+            self.contribution = contribution
+            self.endowment -= contribution
+        except UnboundLocalError:
+            print("Contribution cannot be made, since the strategy not 'coop', 'defect' or 'random'.")
 
 
-    def receive_payoff(self, payoff: int ):
+    def receive_payoff(self, payoff: int):
         """
         Update the agent's contribution and payoff.
         """
         self.payoff = payoff
         self.endowment += payoff
+        self.cumulative_payoff += payoff
 
     def to_string(self):
         """
@@ -47,12 +58,12 @@ class Agent:
         print("-"*20)
 
     #Move this to the world class sen agent position check in neighbourhoods
-    def check_neighbours(self, range):
-        #look at the neighbours
-        print()
+    # def check_neighbours(self, range):
+    #     #look at the neighbours
+    #     print()
 
-    def vote(self):
-        #vote for one of the checked neighbors
-        check_neighbours(3)
+    # def vote(self):
+    #     #vote for one of the checked neighbors
+    #     check_neighbours(3)
 
 

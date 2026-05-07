@@ -1,5 +1,44 @@
+from dataclasses import dataclass
+
 from agents.agent import Agent
 import pandas as pd
+
+
+@dataclass
+class GameStatistics:
+    """
+    A class that works as a container of all the important information regarding the previous games.
+    A single instance of this class keeps info regarding one round of the game.
+    """
+    round_number: int
+    factor: float
+    avg_contribution: float
+    average_cooperation: float
+    public_goods: int
+    agents: list[tuple[Agent, int, int]] # (Agent, agent_it, contribution)
+
+    def record_round(self, round_number: int,
+                     factor: float,
+                     avg_contribution: float,
+                     average_cooperation: float,
+                     public_goods: int,
+                     agents: list[tuple[Agent, int, int]]) -> None:
+
+        self.round_number = round_number
+        self.factor = factor
+        self.avg_contribution = avg_contribution
+        self.average_cooperation = average_cooperation
+        self.public_goods = public_goods
+        self.agents = agents
+
+
+
+
+
+
+
+
+
 
 class PublicGoodsGame:
     """
@@ -30,6 +69,9 @@ class PublicGoodsGame:
         for key in strategy:
             for i in range(strategy[key]): self.agents.append(Agent(i, endowment, key))
 
+        # track history
+        self.history = [] # all previous states of the game
+
         # game stats
         self.number_of_turns = 0
         self.average_payoff = []
@@ -52,6 +94,9 @@ class PublicGoodsGame:
         Run a single round of the game.
         :return: list of payoffs
         """
+
+        # keep track of the history
+
 
         # collect contributions from all agents
         total_contributions = 0
