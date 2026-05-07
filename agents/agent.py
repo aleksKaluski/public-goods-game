@@ -31,10 +31,11 @@ class Agent:
             contribution = 0
         if self.strategy == "random":
             contribution = np.random.randint(low=0, high=self.endowment)
-
-        self.contribution = contribution
-        self.endowment -= contribution
-
+        try:
+            self.contribution = contribution
+            self.endowment -= contribution
+        except UnboundLocalError:
+            print("Contribution cannot be made, since the strategy not 'coop', 'defect' or 'random'.")
 
 
     def receive_payoff(self, payoff: int):
@@ -43,7 +44,7 @@ class Agent:
         """
         self.payoff = payoff
         self.endowment += payoff
-        self.contribution += payoff
+        self.cumulative_payoff += payoff
 
     def to_string(self):
         """
