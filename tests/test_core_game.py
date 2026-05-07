@@ -14,8 +14,8 @@ def test_1():
     payoff, contribution, coop, n_turns = pgg.game_stas()
 
     # check the results
-    assert sum(payoff)/n_turns == 484.00
-    assert sum(contribution)/n_turns == 242
+    assert sum(payoff)/n_turns == 124 # (20 + 40 + 80 + 160 + 320)/5 = 124
+    assert sum(contribution)/n_turns == 62  # (20 + 40 + 80 + 160)/5 = 62
     assert statistics.mean(coop) == 1
     assert n_turns == 5
 

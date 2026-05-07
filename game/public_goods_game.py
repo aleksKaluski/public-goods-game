@@ -30,6 +30,10 @@ class PublicGoodsGame:
         for key in strategy:
             for i in range(strategy[key]): self.agents.append(Agent(i, endowment, key))
 
+        # track history
+        self.round_number = 0 # number of the rounds
+        self.history = [] # all previous states of the game
+
         # game stats
         self.number_of_turns = 0
         self.average_payoff = []
