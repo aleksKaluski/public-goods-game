@@ -8,7 +8,7 @@ class Agent:
     Agent class that represents the agent's strategy and keeps info about agent's endowment and contribution.
     An agent is a minimal element of the game.
     """
-    def __init__(self, identifier: int, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
+    def __init__(self, identifier: str, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
         self.identifier = identifier # id
         self.strategy = strategy # type of strategy
         self.endowment = endowment # current money of an agent
