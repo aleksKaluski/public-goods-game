@@ -1,5 +1,5 @@
 import numpy as np
-
+import uuid
 from game import payoff
 
 
@@ -8,8 +8,8 @@ class Agent:
     Agent class that represents the agent's strategy and keeps info about agent's endowment and contribution.
     An agent is a minimal element of the game.
     """
-    def __init__(self, identifier: str, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
-        self.identifier = identifier # id
+    def __init__(self, endowment: int, strategy: str = "coop", contribution: int = 0, payoff: int = 0):
+        self.identifier = str(uuid.uuid4().hex[:5]) # id
         self.strategy = strategy # type of strategy
         self.endowment = endowment # current money of an agent
         self.contribution = contribution # how much the agent will contribute

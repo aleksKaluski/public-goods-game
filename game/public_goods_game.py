@@ -1,6 +1,5 @@
 from agents.agent import Agent
 import pandas as pd
-import uuid
 
 
 class PublicGoodsGame:
@@ -30,8 +29,7 @@ class PublicGoodsGame:
 
         # initialize various agents
         for key in strategy:
-            for i in range(strategy[key]): self.agents.append(Agent(str(uuid.uuid4().hex[:5]), # unique id
-                                                                    endowment,
+            for i in range(strategy[key]): self.agents.append(Agent(endowment,
                                                                     key))
 
         # track history
@@ -128,6 +126,7 @@ class PublicGoodsGame:
         print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
         print(f"\tAverage payoff: {round(average_payoff, 2)}")
         print(f"\tPublic goods: {round(public_goods, 2)}")
+        print(self.history)
 
         return average_payoff, average_contribution, average_cooperation, n_rounds
 
