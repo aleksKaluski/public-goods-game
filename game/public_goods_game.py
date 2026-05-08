@@ -1,43 +1,5 @@
-from dataclasses import dataclass
-
 from agents.agent import Agent
 import pandas as pd
-
-
-@dataclass
-class GameStatistics:
-    """
-    A class that works as a container of all the important information regarding the previous games.
-    A single instance of this class keeps info regarding one round of the game.
-    """
-    round_number: int
-    factor: float
-    avg_contribution: float
-    average_cooperation: float
-    public_goods: int
-    agents: list[tuple[Agent, int, int]] # (Agent, agent_it, contribution)
-
-    def record_round(self, round_number: int,
-                     factor: float,
-                     avg_contribution: float,
-                     average_cooperation: float,
-                     public_goods: int,
-                     agents: list[tuple[Agent, int, int]]) -> None:
-
-        self.round_number = round_number
-        self.factor = factor
-        self.avg_contribution = avg_contribution
-        self.average_cooperation = average_cooperation
-        self.public_goods = public_goods
-        self.agents = agents
-
-
-
-
-
-
-
-
 
 
 class PublicGoodsGame:
@@ -46,8 +8,8 @@ class PublicGoodsGame:
     Functionalities:
     - Initialize the game
     - Run rounds of the game
+    - Save info about the hame history
     """
-
     def __init__(self, endowment: int, factor: float, strategy: dict):
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
@@ -67,16 +29,14 @@ class PublicGoodsGame:
 
         # initialize various agents
         for key in strategy:
-            for i in range(strategy[key]): self.agents.append(Agent(i, endowment, key))
+            for i in range(strategy[key]): self.agents.append(Agent(endowment,
+                                                                    key))
 
         # track history
         self.history = [] # all previous states of the game
 
-        # game stats
-        self.number_of_turns = 0
-        self.average_payoff = []
-        self.average_contribution = []
-        self.average_cooperation = []
+        # game stats (fast and for testing)
+        self.number_of_turns = 1
 
 
     def calculate_payoffs(self, agent: Agent) -> int:
@@ -89,14 +49,10 @@ class PublicGoodsGame:
         return payoff
 
 
-    def run_round(self) -> list[int]:
+    def run_round(self) -> None:
         """
         Run a single round of the game.
-        :return: list of payoffs
         """
-
-        # keep track of the history
-
 
         # collect contributions from all agents
         total_contributions = 0
@@ -118,25 +74,58 @@ class PublicGoodsGame:
             self.public_goods = total_contributions*self.factor
 
         # give payoff to agents
+        agent_moves = []
         list_of_payoffs = []
         for agent in self.agents:
             calculated_payoff = self.calculate_payoffs(agent)
             list_of_payoffs.append(calculated_payoff)
 
-        # compute stats
+            agent_moves.append({"id": agent.identifier,
+                                "payoff": agent.payoff,
+                                "contribution": agent.contribution,
+                                "strategy": agent.strategy})
+
+        # compute stats and keep them in the dict
+        self.record_round(round_number=self.number_of_turns,
+                          factor=self.factor,
+                          average_contribution= total_contributions / self.n_agents,
+                          average_cooperation=n_agents_contributed / self.n_agents,
+                          average_payoff=sum(list_of_payoffs) / len(list_of_payoffs),
+                          public_goods=self.public_goods,
+                          agents=agent_moves)
+
         self.number_of_turns += 1
-        self.average_cooperation.append(n_agents_contributed / self.n_agents)
-        self.average_payoff.append(sum(list_of_payoffs) / len(list_of_payoffs))
-        self.average_contribution.append(total_contributions / self.n_agents)
+
+    def record_round(self, **kwargs):
+        """
+        Transfer info about a single round of the game to the list of dicts (self.history)
+        """
+        self.history.append({
+            "round_number": kwargs.get('round_number'),
+            "factor": kwargs.get('factor'),
+            "average_contribution": round(kwargs.get('average_contribution'), 2),
+            "average_cooperation": round(kwargs.get('average_cooperation'), 2),
+            "average_payoff": round(kwargs.get('average_payoff'), 2),
+            "public_goods": round(kwargs.get('public_goods'), 2),
+            "agents": kwargs.get('agents')
+        })
 
 
-    def game_stas(self):
+    def game_stats(self):
         """
         Retrieve game stats
         """
-        print(f"\nGame stats after {self.number_of_turns} turns:")
-        print(f"Public goods: {self.public_goods}$")
-        print(f"Average payoff: {sum(self.average_payoff) / self.number_of_turns:.2f}$")
-        print(f"Average contribution: {sum(self.average_contribution) / self.number_of_turns:.2f}$")
-        print(f"Average cooperation: {(sum(self.average_cooperation) / self.number_of_turns)*100:.2f}%")
-        return self.average_payoff, self.average_contribution, self.average_cooperation, self.number_of_turns
+        n_rounds = self.history[-1].get("round_number")
+        average_contribution = sum([elt.get("average_contribution") for elt in self.history])/n_rounds
+        average_cooperation = self.history[-1].get("average_cooperation")
+        average_payoff = sum([elt.get("average_payoff") for elt in self.history])/n_rounds
+        public_goods = self.history[-1].get("public_goods")
+
+        print(f"\nGame stats after {n_rounds} turns:")
+        print(f"\tAverage contribution: {round(average_contribution, 2)}")
+        print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
+        print(f"\tAverage payoff: {round(average_payoff, 2)}")
+        print(f"\tPublic goods: {round(public_goods, 2)}")
+
+        return average_payoff, average_contribution, average_cooperation, n_rounds
+
