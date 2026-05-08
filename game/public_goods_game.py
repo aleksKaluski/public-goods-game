@@ -126,7 +126,6 @@ class PublicGoodsGame:
         print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
         print(f"\tAverage payoff: {round(average_payoff, 2)}")
         print(f"\tPublic goods: {round(public_goods, 2)}")
-        print(self.history)
 
         return average_payoff, average_contribution, average_cooperation, n_rounds
 
