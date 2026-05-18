@@ -182,3 +182,31 @@ class World:
                     self.neighborhoods[n_id].add_agent(agent)
 
                 agent_id += 1
+
+    def get_agents_in_range(self, center_agent, sight):
+
+        nearby_agents = []
+
+        cx = center_agent.x
+        cy = center_agent.y
+
+        min_x = max(0, cx - sight)
+        max_x = min(self.width - 1, cx + sight)
+
+        min_y = max(0, cy - sight)
+        max_y = min(self.height - 1, cy + sight)
+
+        for y in range(min_y, max_y + 1):
+            for x in range(min_x, max_x + 1):
+
+                agent = self.grid[y][x]
+
+                if agent is None:
+                    continue
+
+                if agent == center_agent:
+                    continue
+
+                nearby_agents.append(agent)
+
+        return nearby_agents
