@@ -83,8 +83,22 @@ class Agent:
     #     #look at the neighbours
     #     print()
 
-    # def vote(self):
-    #     #vote for one of the checked neighbors
-    #     check_neighbours(3)
+    def vote(self, world, sight=3):
+
+        nearby_agents = world.get_agents_in_range(
+            self,
+            sight
+        )
+
+        if not nearby_agents:
+            return None
+
+        # choose agent with minimum contribution or someting else
+        voted_agent = min(
+            nearby_agents,
+            key=lambda agent: agent.contribution
+        )
+
+        return voted_agent
 
 
