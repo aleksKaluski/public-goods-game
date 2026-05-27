@@ -1,5 +1,5 @@
 from agents.agent import Agent
-import pandas as pd
+from dynamics.world import World
 
 
 class PublicGoodsGame:
@@ -10,7 +10,13 @@ class PublicGoodsGame:
     - Run rounds of the game
     - Save info about the hame history
     """
-    def __init__(self, endowment: int, factor: float, strategy: dict):
+    def __init__(self, endowment: int,
+                 factor: float,
+                 strategy: dict,
+                 width: int = 0,
+                 height: int = 0,
+                 num_neighborhoods:int = 0) -> None:
+
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
         # {"coop" : 10, "defect" :5, "random":0} means that we have 15 agents
@@ -22,6 +28,10 @@ class PublicGoodsGame:
 
         self.n_agents = sum(strategy.values()) # number of agents
         self.agents = []
+
+        # initialize the world and fill it with agents
+        self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
+        self.world.fill_with_agents(agents=self.agents)
 
         self.endowment = endowment
         self.factor = factor # factor that multiplies the payoff from public pot

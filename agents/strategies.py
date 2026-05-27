@@ -4,7 +4,7 @@ import random
 
 class BaseStrategy(ABC):
     """
-    The Super Class  for strategies. All Strategies should inherit this class.
+    The Super Class for strategies. All Strategies should inherit this class.
     """
 
     def __init__(self, name: str):

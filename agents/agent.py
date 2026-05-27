@@ -1,6 +1,4 @@
-import numpy as np
 import uuid
-from game import payoff
 from agents.strategies import AlwaysCooperate, AlwaysDefect, RandomStrategy
 
 class Agent:
@@ -14,6 +12,10 @@ class Agent:
         self.contribution = contribution # how much the agent will contribute
         self.payoff = payoff # agent's payoff
 
+        # coords
+        self.x = 0
+        self.y = 0
+
         # type of strategy
         self.strategy = None
         self.set_strategy(strategy)
@@ -24,7 +26,7 @@ class Agent:
 
     def set_strategy(self, strategy_name: str):
         """
-        Helper for maping strategies to agents.
+        Helper for mapping strategies to agents.
         """
         mapping = {
             "coop": AlwaysCooperate(name="Cooperative"),
@@ -38,7 +40,6 @@ class Agent:
             raise ValueError(f"Unknown strategy: {strategy_name}")
 
 
-
     def decide_contribution(self):
         """
         Decide how much contribution would be made. Substitute contribution from endowment.
@@ -47,7 +48,6 @@ class Agent:
                                                          endowment=self.endowment,
                                                          contribution_history=self.contribution_history,
                                                          payoff_history=self.payoff_history)
-
 
         try:
             self.contribution = contribution
@@ -67,6 +67,7 @@ class Agent:
         self.cumulative_payoff += payoff
         self.payoff_history.append(self.payoff)
 
+
     def to_string(self):
         """
         Print the agent's statistics.
@@ -78,13 +79,11 @@ class Agent:
         print(f"Strategy: {self.strategy}")
         print("-"*20)
 
-    #Move this to the world class sen agent position check in neighbourhoods
-    # def check_neighbours(self, range):
-    #     #look at the neighbours
-    #     print()
 
     def vote(self, world, sight=3):
-
+        """
+        Vote in order to exclude some agents.
+        """
         nearby_agents = world.get_agents_in_range(
             self,
             sight
@@ -93,7 +92,7 @@ class Agent:
         if not nearby_agents:
             return None
 
-        # choose agent with minimum contribution or someting else
+        # choose agent with minimum contribution or something else
         voted_agent = min(
             nearby_agents,
             key=lambda agent: agent.contribution

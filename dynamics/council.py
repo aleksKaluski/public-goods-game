@@ -9,7 +9,7 @@ class Council:
 
         # collect votes
         for agent in self.neighborhood.agents:
-            target = agent.vote() #should return a neighbour after searching the perimeter
+            target = agent.vote() # should return a neighbour after searching the perimeter
             if target is None:
                 continue
 

@@ -19,4 +19,4 @@ world = World(
     num_neighborhoods=5
 )
 
-world.print_map()
+world.to_string()

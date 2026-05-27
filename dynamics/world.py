@@ -1,10 +1,15 @@
 import random
 from collections import deque
+
+from agents.agent import Agent
 from dynamics.neighborhood import Neighborhood
 
 class World:
-
-    def __init__(self, width, height, num_neighborhoods):
+    """
+    A class that keeps the topology of the game, meaning the location of agents and
+    their neighborhoods.
+    """
+    def __init__(self, width:int, height: int, num_neighborhoods: int):
 
         self.width = width
         self.height = height
@@ -44,22 +49,15 @@ class World:
         used = set()
 
         for n_id in range(1, self.num_neighborhoods + 1):
-
             while True:
-
                 x = random.randint(0, self.width - 1)
                 y = random.randint(0, self.height - 1)
 
                 if (x, y) not in used:
-
                     used.add((x, y))
-
                     self.map[y][x] = n_id
-
                     self.neighborhoods[n_id].add_coordinate(x, y)
-
                     seeds.append((x, y, n_id))
-
                     break
 
         # ---------------------------------------------------
@@ -87,11 +85,9 @@ class World:
                 nx = x + dx
                 ny = y + dy
 
-                if (
-                    0 <= nx < self.width and
+                if (0 <= nx < self.width and
                     0 <= ny < self.height and
-                    self.map[ny][nx] is None
-                ):
+                    self.map[ny][nx] is None):
 
                     self.map[ny][nx] = n_id
 
@@ -99,18 +95,14 @@ class World:
 
                     frontier.append((nx, ny, n_id))
 
-        # fully connected guaranteed
 
-    def print_map(self):
-
+    def to_string(self):
         for row in self.map:
-
             print(" ".join(str(cell) for cell in row))
 
     def is_connected(self, neighborhood_id):
         """
-        Debug checker:
-        verifies neighborhood is one connected blob.
+        Debug checker: verifies neighborhood is one connected blob.
         """
 
         coords = self.neighborhoods[
@@ -153,35 +145,32 @@ class World:
 
         return len(visited) == len(coords)
 
-    def fill_with_agents(self, AgentClass, endowment=10, strategy="coop"):
+
+    def fill_with_agents(self, agents: list[Agent]):
         """
-        Fills every tile with an agent.
-        Each agent is placed at (x, y) and registered in its neighborhood.
+        Fills every tile with an agent. Each agent is placed at (x, y) and registered in its neighborhood.
+         The agents are provided with the list and randomly placed in the neighborhood.
         """
 
-        agent_id = 0
+        for agent in agents:
+            i = 0
+            # sample as long as we won't find a free position
+            while True:
+                y = random.randrange(len(self.grid))
+                x = random.randrange(len(self.grid[0]))
 
-        for y in range(self.height):
-            for x in range(self.width):
-                # choose strategy from the options randomly or not
-                agent = AgentClass(
-                    identifier=agent_id,
-                    endowment=endowment,
-                    strategy=strategy
-                )
+                if self.grid[y][x] is None:
+                    self.grid[y][x] = agent
 
-                agent.x = x
-                agent.y = y
+                    # assign agent to the neighborhood
+                    n_id = self.map[y][x]
+                    if n_id is not None:
+                        self.neighborhoods[n_id].add_agent(agent)
+                    break
 
-                self.grid[y][x] = agent
-
-                # assign to neighborhood
-                n_id = self.map[y][x]
-
-                if n_id is not None:
-                    self.neighborhoods[n_id].add_agent(agent)
-
-                agent_id += 1
+                # avoid infinite loops
+                if i > 10:
+                    break
 
     def get_agents_in_range(self, center_agent, sight):
 
