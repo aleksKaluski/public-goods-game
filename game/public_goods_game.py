@@ -29,18 +29,18 @@ class PublicGoodsGame:
         self.n_agents = sum(strategy.values()) # number of agents
         self.agents = []
 
-        # initialize the world and fill it with agents
-        self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
-        self.world.fill_with_agents(agents=self.agents)
+        # initialize various agents
+        for key in strategy:
+            for i in range(strategy[key]): self.agents.append(Agent(endowment,
+                                                                    key))
 
         self.endowment = endowment
         self.factor = factor # factor that multiplies the payoff from public pot
         self.public_goods = 0
 
-        # initialize various agents
-        for key in strategy:
-            for i in range(strategy[key]): self.agents.append(Agent(endowment,
-                                                                    key))
+        # initialize the world and fill it with agents
+        self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
+        self.world.fill_with_agents(agents=self.agents)
 
         # track history
         self.history = [] # all previous states of the game
@@ -57,6 +57,11 @@ class PublicGoodsGame:
         payoff = int(self.public_goods//self.n_agents)
         agent.receive_payoff(payoff)
         return payoff
+
+
+    def print_current_board_state(self):
+        for row in self.world.map:
+            print(" ".join(str(cell) for cell in row))
 
 
     def run_round(self) -> None:

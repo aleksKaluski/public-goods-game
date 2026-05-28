@@ -1,8 +1,8 @@
 import random
 from collections import deque
-
 from agents.agent import Agent
 from dynamics.neighborhood import Neighborhood
+
 
 class World:
     """
@@ -33,6 +33,43 @@ class World:
             self.neighborhoods[i] = Neighborhood(i)
 
         self.generate_neighborhoods()
+
+    def display(self):
+        """
+        Prints an aligned grid where each column width matches the longest Agent ID.
+        """
+        max_id_len = 1
+        for row in self.grid:
+            for agent in row:
+                if agent is not None:
+                    max_id_len = max(max_id_len, len(str(agent.identifier)))
+
+
+        col_width = max_id_len + 1
+
+        def get_color_code(n_id):
+            if n_id is None: return "\033[0m"
+            return f"\033[38;5;{(n_id * 40) % 230 + 1}m"
+
+        reset = "\033[0m"
+
+        print("\n" + "=" * (self.width * (col_width + 1)))
+        for y in range(self.height):
+            row_str = []
+            for x in range(self.width):
+                n_id = self.map[y][x]
+                agent = self.grid[y][x]
+
+                # text content
+                content = str(agent.identifier) if agent is not None else "#"
+
+                padded_content = content.ljust(col_width)
+                color = get_color_code(n_id)
+                row_str.append(f"{color}{padded_content}{reset}")
+
+            print("".join(row_str))
+        print("=" * (self.width * (col_width + 1)) + "\n")
+
 
     def generate_neighborhoods(self):
         """
@@ -145,32 +182,33 @@ class World:
 
         return len(visited) == len(coords)
 
-
     def fill_with_agents(self, agents: list[Agent]):
-        """
-        Fills every tile with an agent. Each agent is placed at (x, y) and registered in its neighborhood.
-         The agents are provided with the list and randomly placed in the neighborhood.
-        """
+        #  all possible coordinates
+        all_coords = [
+            (x, y) for y in range(self.height)
+            for x in range(self.width)
+            if self.grid[y][x] is None
+        ]
+
+        # random shuffle
+        random.shuffle(all_coords)
 
         for agent in agents:
-            i = 0
-            # sample as long as we won't find a free position
-            while True:
-                y = random.randrange(len(self.grid))
-                x = random.randrange(len(self.grid[0]))
+            if not all_coords:
+                print("Warning: No more room in the world for agents!")
+                break
 
-                if self.grid[y][x] is None:
-                    self.grid[y][x] = agent
+            x, y = all_coords.pop()
 
-                    # assign agent to the neighborhood
-                    n_id = self.map[y][x]
-                    if n_id is not None:
-                        self.neighborhoods[n_id].add_agent(agent)
-                    break
+            # place on grid
+            self.grid[y][x] = agent
+            agent.x = x
+            agent.y = y
 
-                # avoid infinite loops
-                if i > 10:
-                    break
+            # register in neighborhood
+            n_id = self.map[y][x]
+            if n_id is not None:
+                self.neighborhoods[n_id].add_agent(agent)
 
     def get_agents_in_range(self, center_agent, sight):
 
