@@ -1,5 +1,6 @@
 import uuid
 from agents.strategies import AlwaysCooperate, AlwaysDefect, RandomStrategy
+from dynamics.world import World
 
 class Agent:
     """
@@ -15,6 +16,9 @@ class Agent:
         # coords
         self.x = 0
         self.y = 0
+
+        # da hood
+        self.neighborhood = None
 
         # type of strategy
         self.strategy = None
@@ -77,10 +81,11 @@ class Agent:
         print(f"Contribution: {self.contribution}")
         print(f"Payoff: {self.payoff}")
         print(f"Strategy: {self.strategy}")
+        print(f"Neighborhood: {self.neighborhood}")
         print("-"*20)
 
 
-    def vote(self, world, sight=3):
+    def vote(self, world: World, sight: int = 3):
         """
         Vote in order to exclude some agents.
         """

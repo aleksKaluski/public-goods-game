@@ -1,6 +1,5 @@
 import random
 from collections import deque
-from agents.agent import Agent
 from dynamics.neighborhood import Neighborhood
 
 
@@ -27,16 +26,17 @@ class World:
             for _ in range(height)
         ]
 
+        # compute neighborhoods
         self.neighborhoods = {}
-
         for i in range(1, num_neighborhoods + 1):
             self.neighborhoods[i] = Neighborhood(i)
-
         self.generate_neighborhoods()
 
-    def display(self):
+
+    def to_string(self):
         """
         Prints an aligned grid where each column width matches the longest Agent ID.
+        Colors symbolize neighborhoods, while agents are displayed as their IDs.
         """
         max_id_len = 1
         for row in self.grid:
@@ -133,10 +133,6 @@ class World:
                     frontier.append((nx, ny, n_id))
 
 
-    def to_string(self):
-        for row in self.map:
-            print(" ".join(str(cell) for cell in row))
-
     def is_connected(self, neighborhood_id):
         """
         Debug checker: verifies neighborhood is one connected blob.
@@ -182,7 +178,8 @@ class World:
 
         return len(visited) == len(coords)
 
-    def fill_with_agents(self, agents: list[Agent]):
+
+    def fill_with_agents(self, agents):
         #  all possible coordinates
         all_coords = [
             (x, y) for y in range(self.height)
@@ -209,8 +206,25 @@ class World:
             n_id = self.map[y][x]
             if n_id is not None:
                 self.neighborhoods[n_id].add_agent(agent)
+                agent.neighborhood = n_id
 
-    def get_agents_in_range(self, center_agent, sight):
+
+    def get_agents_in_neighborhood(self,
+                                   agents,
+                                   neighborhood_id: int):
+        """
+        Function that returns all agents in a given neighborhood.
+        """
+
+        agents_in_neighborhood = []
+        for agent in agents:
+            if agent.identifier == neighborhood_id:
+                agents_in_neighborhood.append(agent)
+
+        return agents_in_neighborhood
+
+
+    def get_agents_in_range(self, center_agent, sight: int):
 
         nearby_agents = []
 
@@ -233,7 +247,5 @@ class World:
 
                 if agent == center_agent:
                     continue
-
                 nearby_agents.append(agent)
-
         return nearby_agents

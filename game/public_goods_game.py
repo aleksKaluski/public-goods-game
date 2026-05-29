@@ -49,19 +49,27 @@ class PublicGoodsGame:
         self.number_of_turns = 1
 
 
-    def calculate_payoffs(self, agent: Agent) -> int:
+    def calculate_payoffs(self, agent: Agent, general: bool = True) -> int:
         """
         Calculates the payoff for each agent in the game and makes the agent receive it.
         As for now we make it in a naive way.
         """
-        payoff = int(self.public_goods//self.n_agents)
+        if general:
+            payoff = int(self.public_goods//self.n_agents)
+        else:
+            payoff = 0
+            neighborhood_id = agent.neighborhood
+
+            agents_in_neighborhood = self.world.get_agents_in_neighborhood(agents=self.agents,
+                                                                           neighborhood_id=neighborhood_id)
+
+
+
+
+
+
         agent.receive_payoff(payoff)
         return payoff
-
-
-    def print_current_board_state(self):
-        for row in self.world.map:
-            print(" ".join(str(cell) for cell in row))
 
 
     def run_round(self) -> None:
