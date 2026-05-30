@@ -8,6 +8,10 @@ class Neighborhood:
 
         self.coordinates = set()
 
+        # current amount of money
+        # within one neighborhood
+        self.local_pot = 0
+
     def add_coordinate(self, x, y):
 
         self.coordinates.add((x, y))
@@ -22,3 +26,19 @@ class Neighborhood:
 
         if agent in self.agents:
             self.agents.remove(agent)
+
+    def get_agents_in_neighborhood(self):
+        """
+        Function that returns all agents in a given neighborhood.
+        """
+
+        return self.agents
+
+    def to_string(self):
+        """
+        Prints the current state of the neighborhood.
+        """
+        print(f"\n\033[94mNeighborhood: {self.identifier}\033[0m")
+        for agent in self.agents:
+            agent.to_string()
+

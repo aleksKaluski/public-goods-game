@@ -15,7 +15,8 @@ class PublicGoodsGame:
                  strategy: dict,
                  width: int = 0,
                  height: int = 0,
-                 num_neighborhoods:int = 0) -> None:
+                 num_neighborhoods:int = 0,
+                 local_game: bool = False) -> None:
 
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
@@ -34,6 +35,7 @@ class PublicGoodsGame:
             for i in range(strategy[key]): self.agents.append(Agent(endowment,
                                                                     key))
 
+        self.local_game = local_game # decide how to compute payoffs
         self.endowment = endowment
         self.factor = factor # factor that multiplies the payoff from public pot
         self.public_goods = 0
@@ -49,24 +51,20 @@ class PublicGoodsGame:
         self.number_of_turns = 1
 
 
-    def calculate_payoffs(self, agent: Agent, general: bool = True) -> int:
+    def calculate_payoffs(self, agent: Agent) -> int:
         """
         Calculates the payoff for each agent in the game and makes the agent receive it.
         As for now we make it in a naive way.
         """
-        if general:
+
+        # global pot
+        if not self.local_game:
             payoff = int(self.public_goods//self.n_agents)
+
+        # local pots
         else:
-            payoff = 0
             neighborhood_id = agent.neighborhood
-
-            agents_in_neighborhood = self.world.get_agents_in_neighborhood(agents=self.agents,
-                                                                           neighborhood_id=neighborhood_id)
-
-
-
-
-
+            payoff = int(self.world.neighborhoods[neighborhood_id].local_pot//len(self.world.neighborhoods[neighborhood_id].agents))
 
         agent.receive_payoff(payoff)
         return payoff

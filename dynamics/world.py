@@ -209,20 +209,6 @@ class World:
                 agent.neighborhood = n_id
 
 
-    def get_agents_in_neighborhood(self,
-                                   agents,
-                                   neighborhood_id: int):
-        """
-        Function that returns all agents in a given neighborhood.
-        """
-
-        agents_in_neighborhood = []
-        for agent in agents:
-            if agent.identifier == neighborhood_id:
-                agents_in_neighborhood.append(agent)
-
-        return agents_in_neighborhood
-
 
     def get_agents_in_range(self, center_agent, sight: int):
 
