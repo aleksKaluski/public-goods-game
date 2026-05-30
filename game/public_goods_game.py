@@ -123,6 +123,8 @@ class PublicGoodsGame:
         total_cooperators = 0
         agent_moves = []
 
+        self.public_goods = 0
+
         for n in self.world.neighborhoods.values():
             neighborhood_contributions = 0
 
@@ -134,7 +136,7 @@ class PublicGoodsGame:
 
             n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
 
-            self.public_goods = n.local_pot
+            self.public_goods  += n.local_pot
 
             for agent in n.agents:
                 payoff = self.calculate_payoffs(agent)
