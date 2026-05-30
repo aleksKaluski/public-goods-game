@@ -33,11 +33,12 @@ class Neighborhood:
         """
         return self.agents
 
+
     def to_string(self):
         """
         Prints the current state of the neighborhood.
         """
         print(f"\n\033[94mNeighborhood: {self.identifier}\033[0m")
-        print(f"Agents: {[agent.identifier for agent in self.agents]}")
+        print(f"Agents: {[(agent.identifier, agent.strategy.to_string())for agent in self.agents]}")
         print(f"Local pot: {self.local_pot}")
 

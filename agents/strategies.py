@@ -21,6 +21,10 @@ class BaseStrategy(ABC):
         """
         pass
 
+    @abstractmethod
+    def to_string(self):
+        pass
+
 
 class AlwaysCooperate(BaseStrategy):
     """
@@ -33,6 +37,9 @@ class AlwaysCooperate(BaseStrategy):
                             payoff_history: list) -> int:
         return endowment
 
+    def to_string(self):
+        return "AlwaysCooperate"
+
 
 class AlwaysDefect(BaseStrategy):
     """
@@ -44,6 +51,8 @@ class AlwaysDefect(BaseStrategy):
                             contribution_history: list,
                             payoff_history: list) -> int:
         return 0
+    def to_string(self):
+        return "AlwaysDefect"
 
 
 class RandomStrategy(BaseStrategy):
@@ -57,3 +66,6 @@ class RandomStrategy(BaseStrategy):
                             payoff_history: list) -> int:
 
         return random.randint(0, endowment)
+
+    def to_string(self):
+        return "RandomStrategy"

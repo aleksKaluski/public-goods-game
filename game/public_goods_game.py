@@ -70,97 +70,100 @@ class PublicGoodsGame:
         return payoff
 
 
-    def run_global_round(self) -> None:
+    def run_round(self) -> None:
         """
         Run a single round of the game in the global way.
         """
+        # global mode
+        if not self.local_game:
 
-        # collect contributions from all agents
-        total_contributions = 0
-        n_agents_contributed = 0
-        for agent in self.agents:
-            agent.decide_contribution()
-            # agent.to_string()
-
-            contribution = agent.contribution
-            total_contributions += contribution
-
-            if contribution > 0:
-                n_agents_contributed += 1
-
-        # multiply them by a factor
-        if self.factor < 1:
-            self.public_goods = total_contributions * self.factor + total_contributions
-        else:
-            self.public_goods = total_contributions*self.factor
-
-        # give payoff to agents
-        agent_moves = []
-        list_of_payoffs = []
-        for agent in self.agents:
-            calculated_payoff = self.calculate_payoffs(agent)
-            list_of_payoffs.append(calculated_payoff)
-
-            agent_moves.append({"id": agent.identifier,
-                                "payoff": agent.payoff,
-                                "contribution": agent.contribution,
-                                "strategy": agent.strategy})
-
-        # compute stats and keep them in the dict
-        self.record_round(round_number=self.number_of_turns,
-                          factor=self.factor,
-                          average_contribution= total_contributions / self.n_agents,
-                          average_cooperation=n_agents_contributed / self.n_agents,
-                          average_payoff=sum(list_of_payoffs) / len(list_of_payoffs),
-                          public_goods=self.public_goods,
-                          agents=agent_moves)
-
-        self.number_of_turns += 1
-
-    def run_local_round(self) -> None:
-        total_world_contributions = 0
-        total_world_payoff = 0
-        total_cooperators = 0
-        agent_moves = []
-
-        self.public_goods = 0
-
-        for n in self.world.neighborhoods.values():
-            neighborhood_contributions = 0
-
-            for agent in n.agents:
+            # collect contributions from all agents
+            total_contributions = 0
+            n_agents_contributed = 0
+            for agent in self.agents:
                 agent.decide_contribution()
-                neighborhood_contributions += agent.contribution
-                if agent.contribution > 0:
-                    total_cooperators += 1
+                # agent.to_string()
 
-            n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
+                contribution = agent.contribution
+                total_contributions += contribution
 
-            self.public_goods  += n.local_pot
+                if contribution > 0:
+                    n_agents_contributed += 1
 
-            for agent in n.agents:
-                payoff = self.calculate_payoffs(agent)
-                total_world_payoff += payoff
-                total_world_contributions += agent.contribution
+            # multiply them by a factor
+            if self.factor < 1:
+                self.public_goods = total_contributions * self.factor + total_contributions
+            else:
+                self.public_goods = total_contributions*self.factor
 
-                agent_moves.append({
-                    "id": agent.identifier,
-                    "payoff": agent.payoff,
-                    "contribution": agent.contribution,
-                    "strategy": agent.strategy
-                })
+            # give payoff to agents
+            agent_moves = []
+            list_of_payoffs = []
+            for agent in self.agents:
+                calculated_payoff = self.calculate_payoffs(agent)
+                list_of_payoffs.append(calculated_payoff)
 
-        self.record_round(
-            round_number=self.number_of_turns,
-            factor=self.factor,
-            average_contribution=total_world_contributions / self.n_agents,
-            average_cooperation=total_cooperators / self.n_agents,
-            average_payoff=total_world_payoff / self.n_agents,
-            public_goods=self.public_goods,
-            agents= agent_moves
-        )
+                agent_moves.append({"id": agent.identifier,
+                                    "payoff": agent.payoff,
+                                    "contribution": agent.contribution,
+                                    "strategy": agent.strategy})
 
-        self.number_of_turns += 1
+            # compute stats and keep them in the dict
+            self.record_round(round_number=self.number_of_turns,
+                              factor=self.factor,
+                              average_contribution= total_contributions / self.n_agents,
+                              average_cooperation=n_agents_contributed / self.n_agents,
+                              average_payoff=sum(list_of_payoffs) / len(list_of_payoffs),
+                              public_goods=self.public_goods,
+                              agents=agent_moves)
+
+            self.number_of_turns += 1
+
+        # local mode
+        if self.local_game:
+            total_world_contributions = 0
+            total_world_payoff = 0
+            total_cooperators = 0
+            agent_moves = []
+
+            self.public_goods = 0
+
+            for n in self.world.neighborhoods.values():
+                neighborhood_contributions = 0
+
+                for agent in n.agents:
+                    agent.decide_contribution()
+                    neighborhood_contributions += agent.contribution
+                    if agent.contribution > 0:
+                        total_cooperators += 1
+
+                n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
+
+                self.public_goods  += n.local_pot
+
+                for agent in n.agents:
+                    payoff = self.calculate_payoffs(agent)
+                    total_world_payoff += payoff
+                    total_world_contributions += agent.contribution
+
+                    agent_moves.append({
+                        "id": agent.identifier,
+                        "payoff": agent.payoff,
+                        "contribution": agent.contribution,
+                        "strategy": agent.strategy
+                    })
+
+            self.record_round(
+                round_number=self.number_of_turns,
+                factor=self.factor,
+                average_contribution=total_world_contributions / self.n_agents,
+                average_cooperation=total_cooperators / self.n_agents,
+                average_payoff=total_world_payoff / self.n_agents,
+                public_goods=self.public_goods,
+                agents= agent_moves
+            )
+
+            self.number_of_turns += 1
 
 
     def record_round(self, **kwargs):
@@ -189,6 +192,7 @@ class PublicGoodsGame:
         public_goods = self.history[-1].get("public_goods")
 
         print(f"\nGame stats after {n_rounds} turns:")
+        print(f"\tLocal mode: {self.local_game}")
         print(f"\tAverage contribution: {round(average_contribution, 2)}")
         print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
         print(f"\tAverage payoff: {round(average_payoff, 2)}")

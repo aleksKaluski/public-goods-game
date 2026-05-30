@@ -1,13 +1,13 @@
 from game.public_goods_game import PublicGoodsGame
 
-strategies = {"coop": 4, "defect": 0, "random": 0}
+strategies = {"coop": 4, "defect": 4, "random": 0}
 pgg = PublicGoodsGame(endowment=10,
                       factor=2,
                       strategy=strategies,
                       width=4,
                       height=4,
                       num_neighborhoods=7,
-                      local_game=False)
+                      local_game=True)
 
 
 # for agent in pgg.agents:
@@ -21,7 +21,7 @@ pgg = PublicGoodsGame(endowment=10,
 #     print(n.to_string())
 
 for i in range(5):
-    pgg.run_global_round()
+    pgg.run_round()
 
 pgg.world.to_string()
 pgg.game_stats()
