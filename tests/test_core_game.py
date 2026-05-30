@@ -10,7 +10,7 @@ def test_1():
     pgg = PublicGoodsGame(endowment=10, factor=2, strategy=strategies)
 
     for i in range(5):
-        pgg.run_round()
+        pgg.run_global_round()
     payoff, contribution, coop, n_turns = pgg.game_stats()
 
     # check the results
@@ -28,7 +28,7 @@ def test_2():
     pgg = PublicGoodsGame(endowment=10, factor=2, strategy=strategies)
 
     for i in range(5):
-        pgg.run_round()
+        pgg.run_global_round()
     payoff, contribution, coop, n_turns = pgg.game_stats()
 
     assert payoff == 0

@@ -70,9 +70,9 @@ class PublicGoodsGame:
         return payoff
 
 
-    def run_round(self) -> None:
+    def run_global_round(self) -> None:
         """
-        Run a single round of the game.
+        Run a single round of the game in the global way.
         """
 
         # collect contributions from all agents
@@ -116,6 +116,50 @@ class PublicGoodsGame:
                           agents=agent_moves)
 
         self.number_of_turns += 1
+
+    def run_local_round(self) -> None:
+        total_world_contributions = 0
+        total_world_payoff = 0
+        total_cooperators = 0
+        agent_moves = []
+
+        for n in self.world.neighborhoods.values():
+            neighborhood_contributions = 0
+
+            for agent in n.agents:
+                agent.decide_contribution()
+                neighborhood_contributions += agent.contribution
+                if agent.contribution > 0:
+                    total_cooperators += 1
+
+            n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
+
+            self.public_goods = n.local_pot
+
+            for agent in n.agents:
+                payoff = self.calculate_payoffs(agent)
+                total_world_payoff += payoff
+                total_world_contributions += agent.contribution
+
+                agent_moves.append({
+                    "id": agent.identifier,
+                    "payoff": agent.payoff,
+                    "contribution": agent.contribution,
+                    "strategy": agent.strategy
+                })
+
+        self.record_round(
+            round_number=self.number_of_turns,
+            factor=self.factor,
+            average_contribution=total_world_contributions / self.n_agents,
+            average_cooperation=total_cooperators / self.n_agents,
+            average_payoff=total_world_payoff / self.n_agents,
+            public_goods=self.public_goods,
+            agents= agent_moves
+        )
+
+        self.number_of_turns += 1
+
 
     def record_round(self, **kwargs):
         """

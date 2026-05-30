@@ -52,7 +52,6 @@ class World:
             return f"\033[38;5;{(n_id * 40) % 230 + 1}m"
 
         reset = "\033[0m"
-
         print("\n" + "=" * (self.width * (col_width + 1)))
         for y in range(self.height):
             row_str = []
@@ -69,6 +68,10 @@ class World:
 
             print("".join(row_str))
         print("=" * (self.width * (col_width + 1)) + "\n")
+
+    # def to_string_neighborhoods(self):
+        for v in self.neighborhoods.values():
+            v.to_string()
 
 
     def generate_neighborhoods(self):
@@ -235,3 +238,5 @@ class World:
                     continue
                 nearby_agents.append(agent)
         return nearby_agents
+
+

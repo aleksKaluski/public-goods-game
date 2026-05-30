@@ -31,7 +31,6 @@ class Neighborhood:
         """
         Function that returns all agents in a given neighborhood.
         """
-
         return self.agents
 
     def to_string(self):
@@ -39,6 +38,6 @@ class Neighborhood:
         Prints the current state of the neighborhood.
         """
         print(f"\n\033[94mNeighborhood: {self.identifier}\033[0m")
-        for agent in self.agents:
-            agent.to_string()
+        print(f"Agents: {[agent.identifier for agent in self.agents]}")
+        print(f"Local pot: {self.local_pot}")
 

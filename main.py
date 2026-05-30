@@ -14,13 +14,15 @@ pgg = PublicGoodsGame(endowment=10,
 #     agent.to_string()
 
 # display the state of the board
-pgg.world.to_string()
+# pgg.world.to_string()
 
 # hoods = pgg.world.neighborhoods
 # for n in hoods.values():
 #     print(n.to_string())
 
-for i in range(5):
-    pgg.run_round()
-# pgg.game_stats()
-# print(pgg.history)
+for i in range(3):
+    pgg.run_local_round()
+
+pgg.world.to_string()
+pgg.game_stats()
+# pgg.world.to_string_neighborhoods()
