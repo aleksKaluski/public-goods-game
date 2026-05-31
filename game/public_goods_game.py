@@ -63,32 +63,53 @@ class PublicGoodsGame:
 
         # local pots
         else:
-            neighborhood_id = agent.neighborhood
-            payoff = int(self.world.neighborhoods[neighborhood_id].local_pot//len(self.world.neighborhoods[neighborhood_id].agents))
+            neighborhood = agent.neighborhood
+            payoff = int(neighborhood.local_pot//len(neighborhood.agents))
 
         agent.receive_payoff(payoff)
         return payoff
 
 
-    def run_round(self) -> None:
+    def cooperation_rate(self, agent: Agent) -> float:
         """
-        Run a single round of the game in the global way.
+        Measure cooperation as the strategy's intended contribution rate.
+        """
+        if hasattr(agent.strategy, "contribution_rate"):
+            return agent.strategy.contribution_rate
+
+        available_money = agent.endowment + agent.contribution
+
+        if available_money <= 0:
+            return 0
+
+        return agent.contribution / available_money
+
+
+    def run_round(
+            self,
+            councils: bool = False,
+            mutation_enabled: bool = True,
+            mutation_strength: float = 0.05,
+            mutation_probability: float = 1.0) -> None:
+        """
+        Run a single round of the game.
+
+        When councils is True, local games also run:
+        council votes, acceptance of expelled agents, then strategy updates.
         """
         # global mode
         if not self.local_game:
 
             # collect contributions from all agents
             total_contributions = 0
-            n_agents_contributed = 0
+            total_cooperation_rate = 0
             for agent in self.agents:
                 agent.decide_contribution()
                 # agent.to_string()
 
                 contribution = agent.contribution
                 total_contributions += contribution
-
-                if contribution > 0:
-                    n_agents_contributed += 1
+                total_cooperation_rate += self.cooperation_rate(agent)
 
             # multiply them by a factor
             if self.factor < 1:
@@ -112,7 +133,7 @@ class PublicGoodsGame:
             self.record_round(round_number=self.number_of_turns,
                               factor=self.factor,
                               average_contribution= total_contributions / self.n_agents,
-                              average_cooperation=n_agents_contributed / self.n_agents,
+                              average_cooperation=total_cooperation_rate / self.n_agents,
                               average_payoff=sum(list_of_payoffs) / len(list_of_payoffs),
                               public_goods=self.public_goods,
                               agents=agent_moves)
@@ -123,7 +144,7 @@ class PublicGoodsGame:
         if self.local_game:
             total_world_contributions = 0
             total_world_payoff = 0
-            total_cooperators = 0
+            total_cooperation_rate = 0
             agent_moves = []
 
             self.public_goods = 0
@@ -134,8 +155,7 @@ class PublicGoodsGame:
                 for agent in n.agents:
                     agent.decide_contribution()
                     neighborhood_contributions += agent.contribution
-                    if agent.contribution > 0:
-                        total_cooperators += 1
+                    total_cooperation_rate += self.cooperation_rate(agent)
 
                 n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
 
@@ -157,13 +177,127 @@ class PublicGoodsGame:
                 round_number=self.number_of_turns,
                 factor=self.factor,
                 average_contribution=total_world_contributions / self.n_agents,
-                average_cooperation=total_cooperators / self.n_agents,
+                average_cooperation=total_cooperation_rate / self.n_agents,
                 average_payoff=total_world_payoff / self.n_agents,
                 public_goods=self.public_goods,
                 agents= agent_moves
             )
 
+            if councils:
+                self.run_council_steps(
+                    mutation_enabled=mutation_enabled,
+                    mutation_strength=mutation_strength,
+                    mutation_probability=mutation_probability
+                )
+
             self.number_of_turns += 1
+
+
+    def run_council_steps(
+            self,
+            mutation_enabled: bool = True,
+            mutation_strength: float = 0.05,
+            mutation_probability: float = 1.0) -> None:
+        """
+        Run council phases after contributions and payoffs:
+        votes, acceptance, then strategy updates.
+        """
+        neighborhoods = list(self.world.neighborhoods.values())
+
+        for neighborhood in neighborhoods:
+            neighborhood.council.hold_vote()
+
+        for neighborhood in neighborhoods:
+            neighborhood.council.accept_expelled()
+
+        for agent in self.agents:
+            if agent.neighborhood is not None:
+                agent.update_strategy(
+                    mutation_enabled=mutation_enabled,
+                    mutation_strength=mutation_strength,
+                    mutation_probability=mutation_probability
+                )
+
+
+    def run_turns(
+            self,
+            turns: int,
+            councils: bool = False,
+            show_stats: bool = True,
+            show_map: bool = True,
+            show_neighborhood_details: bool = False,
+            mutation_enabled: bool = True,
+            mutation_strength: float = 0.05,
+            mutation_probability: float = 1.0) -> None:
+        """
+        Run any number of turns and optionally print stats/map after each turn.
+        """
+        assert turns >= 0, "Turns must be non-negative"
+        assert 0 <= mutation_probability <= 1, "Mutation probability must be between 0 and 1"
+
+        for _ in range(turns):
+            self.run_round(
+                councils=councils,
+                mutation_enabled=mutation_enabled,
+                mutation_strength=mutation_strength,
+                mutation_probability=mutation_probability
+            )
+
+            if show_map:
+                self.world.to_string(
+                    show_neighborhood_details=show_neighborhood_details
+                )
+
+            if show_stats:
+                self.game_stats()
+
+
+    @classmethod
+    def run_simulation(
+            cls,
+            turns: int,
+            endowment: int = 10,
+            factor: float = 2,
+            strategy: dict | None = None,
+            width: int = 6,
+            height: int = 6,
+            num_neighborhoods: int = 4,
+            local_game: bool = True,
+            councils: bool = True,
+            show_stats: bool = True,
+            show_map: bool = True,
+            show_neighborhood_details: bool = False,
+            mutation_enabled: bool = True,
+            mutation_strength: float = 0.05,
+            mutation_probability: float = 1.0):
+        """
+        Create and run a game with configurable world size and turn count.
+        """
+        if strategy is None:
+            strategy = {"adaptive": 12}
+
+        game = cls(
+            endowment=endowment,
+            factor=factor,
+            strategy=strategy,
+            width=width,
+            height=height,
+            num_neighborhoods=num_neighborhoods,
+            local_game=local_game
+        )
+
+        game.run_turns(
+            turns=turns,
+            councils=councils,
+            show_stats=show_stats,
+            show_map=show_map,
+            show_neighborhood_details=show_neighborhood_details,
+            mutation_enabled=mutation_enabled,
+            mutation_strength=mutation_strength,
+            mutation_probability=mutation_probability
+        )
+
+        return game
 
 
     def record_round(self, **kwargs):
@@ -197,6 +331,37 @@ class PublicGoodsGame:
         print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
         print(f"\tAverage payoff: {round(average_payoff, 2)}")
         print(f"\tPublic goods: {round(public_goods, 2)}")
+
+        if self.local_game:
+            print("\tNeighborhood stats:")
+            for neighborhood in self.world.neighborhoods.values():
+                agents = neighborhood.agents
+
+                if not agents:
+                    print(
+                        f"\t\tNeighborhood {neighborhood.identifier}: "
+                        "agents=0"
+                    )
+                    continue
+
+                average_wealth = sum(
+                    agent.endowment for agent in agents
+                ) / len(agents)
+                neighborhood_average_contribution = sum(
+                    agent.contribution for agent in agents
+                ) / len(agents)
+                average_contribution_rate = sum(
+                    self.cooperation_rate(agent) for agent in agents
+                ) / len(agents)
+
+                print(
+                    f"\t\tNeighborhood {neighborhood.identifier}: "
+                    f"agents={len(agents)}, "
+                    f"wealth={round(average_wealth, 2)}, "
+                    f"contribution={round(neighborhood_average_contribution, 2)}, "
+                    f"contribution rate={round(average_contribution_rate, 2)}, "
+                    f"local pot={round(neighborhood.local_pot, 2)}"
+                )
 
         return average_payoff, average_contribution, average_cooperation, n_rounds
 

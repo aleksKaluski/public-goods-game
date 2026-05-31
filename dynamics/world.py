@@ -35,7 +35,7 @@ class World:
         self.generate_neighborhoods()
 
 
-    def to_string(self):
+    def to_string(self, show_neighborhood_details=False):
         """
         Prints an aligned grid where each column width matches the longest Agent ID.
         Colors symbolize neighborhoods, while agents are displayed as their IDs.
@@ -72,8 +72,9 @@ class World:
         print("=" * (self.width * (col_width + 1)) + "\n")
 
     # def to_string_neighborhoods(self):
-        for v in self.neighborhoods.values():
-            v.to_string()
+        if show_neighborhood_details:
+            for v in self.neighborhoods.values():
+                v.to_string()
 
 
     def generate_neighborhoods(self):

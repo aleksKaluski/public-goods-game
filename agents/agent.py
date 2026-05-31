@@ -1,3 +1,4 @@
+import random
 import uuid
 from agents.strategies import AlwaysCooperate, AlwaysDefect, RandomStrategy, AdaptiveStrategy
 from dynamics.world import World
@@ -108,7 +109,12 @@ class Agent:
 
 
     # call after vote
-    def update_strategy(self, sight=3):
+    def update_strategy(
+            self,
+            sight=3,
+            mutation_enabled=True,
+            mutation_strength=0.05,
+            mutation_probability=1.0):
 
         if not hasattr(self.strategy, "update"):
             return
@@ -122,5 +128,12 @@ class Agent:
             nearby_agents
         )
 
-        self.strategy.mutate()
+        if (
+            mutation_enabled and
+            hasattr(self.strategy, "mutate") and
+            random.random() < mutation_probability
+        ):
+            self.strategy.mutate(
+                mutation_strength=mutation_strength
+            )
 

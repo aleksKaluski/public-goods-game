@@ -1,5 +1,5 @@
 class Council:
-    def __init__(self, neighborhood, threshold):
+    def __init__(self, neighborhood, threshold=0):
         self.neighborhood = neighborhood
         self.threshold = threshold
 
@@ -12,13 +12,18 @@ class Council:
             if target is None:
                 continue
 
-            # only allow voting against neighbors
-            if target in agent.neighbors:
+            # only allow voting against agents represented by this council
+            if target in self.neighborhood.agents:
                 votes[target] = votes.get(target, 0) + 1
 
         # determine who gets kicked
         to_remove = []
-        for agent, count in votes.items():
+        if votes:
+            agent, count = max(
+                votes.items(),
+                key=lambda vote: vote[1]
+            )
+
             if count > self.threshold:
                 to_remove.append(agent)
 
@@ -27,8 +32,6 @@ class Council:
             self.neighborhood.remove_agent(agent)
             self.neighborhood.world.expelled_agents.append(agent)
         
-        self.strategy_check() # make update strategy calls for all agents 
-
         return to_remove  # useful for debugging / tracking
 
     #call this after turn 2 or something
@@ -44,6 +47,19 @@ class Council:
             key=lambda agent: agent.endowment
         )
 
+        empty_coordinate = None
+        for x, y in self.neighborhood.coordinates:
+            if self.neighborhood.world.grid[y][x] is None:
+                empty_coordinate = (x, y)
+                break
+
+        if empty_coordinate is None:
+            return None
+
+        x, y = empty_coordinate
+        self.neighborhood.world.grid[y][x] = candidate
+        candidate.x = x
+        candidate.y = y
         self.neighborhood.add_agent(candidate)
         expelled_agents.remove(candidate)
 

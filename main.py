@@ -1,13 +1,34 @@
 from game.public_goods_game import PublicGoodsGame
 
-strategies = {"coop": 4, "defect": 4, "random": 0}
-pgg = PublicGoodsGame(endowment=10,
-                      factor=2,
-                      strategy=strategies,
-                      width=4,
-                      height=4,
-                      num_neighborhoods=7,
-                      local_game=True)
+TURNS = 200
+WIDTH = 30
+HEIGHT = 30
+NUM_NEIGHBORHOODS = 4
+ENDOWMENT = 20
+FACTOR = 2
+STRATEGIES = {"adaptive": 800}
+SHOW_NEIGHBORHOOD_DETAILS = False
+MUTATION_ENABLED = True
+MUTATION_STRENGTH = 0.1
+MUTATION_PROBABILITY = 0.5
+# add sight and learning rate here
+pgg = PublicGoodsGame.run_simulation(
+    turns=TURNS,
+    endowment=ENDOWMENT,
+    factor=FACTOR,
+    strategy=STRATEGIES,
+    width=WIDTH,
+    height=HEIGHT,
+    num_neighborhoods=NUM_NEIGHBORHOODS,
+    local_game=True,
+    councils=True,
+    show_stats=True,
+    show_map=True,
+    show_neighborhood_details=SHOW_NEIGHBORHOOD_DETAILS,
+    mutation_enabled=MUTATION_ENABLED,
+    mutation_strength=MUTATION_STRENGTH,
+    mutation_probability=MUTATION_PROBABILITY
+)
 
 
 # for agent in pgg.agents:
@@ -20,9 +41,4 @@ pgg = PublicGoodsGame(endowment=10,
 # for n in hoods.values():
 #     print(n.to_string())
 
-for i in range(5):
-    pgg.run_round()
-
-pgg.world.to_string()
-pgg.game_stats()
 # pgg.world.to_string_neighborhoods()
