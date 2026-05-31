@@ -1,12 +1,18 @@
+from dynamics.council import Council
+
 class Neighborhood:
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, world):
 
         self.identifier = identifier
+
+        self.world = world
 
         self.agents = []
 
         self.coordinates = set()
+
+        self.council = Council(self)
 
         # current amount of money
         # within one neighborhood
@@ -26,6 +32,7 @@ class Neighborhood:
 
         if agent in self.agents:
             self.agents.remove(agent)
+            self.world.remove_agent_from_grid(agent)
 
     def get_agents_in_neighborhood(self):
         """

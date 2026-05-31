@@ -14,6 +14,8 @@ class World:
         self.height = height
         self.num_neighborhoods = num_neighborhoods
 
+        self.expelled_agents = [] # for expelled agents obviously
+
         # agents grid
         self.grid = [
             [None for _ in range(width)]
@@ -29,7 +31,7 @@ class World:
         # compute neighborhoods
         self.neighborhoods = {}
         for i in range(1, num_neighborhoods + 1):
-            self.neighborhoods[i] = Neighborhood(i)
+            self.neighborhoods[i] = Neighborhood(i, self)
         self.generate_neighborhoods()
 
 
@@ -209,8 +211,8 @@ class World:
             n_id = self.map[y][x]
             if n_id is not None:
                 self.neighborhoods[n_id].add_agent(agent)
-                agent.neighborhood = n_id
-
+                # not necessary as function already points to the object
+                # agent.neighborhood = n_id
 
 
     def get_agents_in_range(self, center_agent, sight: int):
@@ -240,3 +242,10 @@ class World:
         return nearby_agents
 
 
+    def remove_agent_from_grid(self, agent):
+        if agent.x is not None and agent.y is not None:
+            self.grid[agent.y][agent.x] = None
+
+        agent.x = None
+        agent.y = None
+        agent.neighborhood = None
