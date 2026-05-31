@@ -69,9 +69,8 @@ class World:
             print("".join(row_str))
         print("=" * (self.width * (col_width + 1)) + "\n")
 
-    # def to_string_neighborhoods(self):
-        for v in self.neighborhoods.values():
-            v.to_string()
+        # for v in self.neighborhoods.values():
+        #     v.to_string()
 
 
     def generate_neighborhoods(self):
