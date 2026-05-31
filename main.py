@@ -11,7 +11,10 @@ SHOW_NEIGHBORHOOD_DETAILS = False
 MUTATION_ENABLED = True
 MUTATION_STRENGTH = 0.1
 MUTATION_PROBABILITY = 0.5
-# add sight and learning rate here
+VOTE_SIGHT = 3
+UPDATE_SIGHT = 3
+LEARNING_RATE = 0.2
+
 pgg = PublicGoodsGame.run_simulation(
     turns=TURNS,
     endowment=ENDOWMENT,
@@ -22,6 +25,9 @@ pgg = PublicGoodsGame.run_simulation(
     num_neighborhoods=NUM_NEIGHBORHOODS,
     local_game=True,
     councils=True,
+    vote_sight=VOTE_SIGHT,
+    update_sight=UPDATE_SIGHT,
+    learning_rate=LEARNING_RATE,
     show_stats=True,
     show_map=True,
     show_neighborhood_details=SHOW_NEIGHBORHOOD_DETAILS,

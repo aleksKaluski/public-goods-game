@@ -16,7 +16,8 @@ class PublicGoodsGame:
                  width: int = 0,
                  height: int = 0,
                  num_neighborhoods:int = 0,
-                 local_game: bool = False) -> None:
+                 local_game: bool = False,
+                 learning_rate: float | None = None) -> None:
 
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
@@ -32,8 +33,14 @@ class PublicGoodsGame:
 
         # initialize various agents
         for key in strategy:
-            for i in range(strategy[key]): self.agents.append(Agent(endowment,
-                                                                    key))
+            for i in range(strategy[key]):
+                agent = Agent(endowment, key)
+                if (
+                    learning_rate is not None and
+                    hasattr(agent.strategy, "learning_rate")
+                ):
+                    agent.strategy.learning_rate = learning_rate
+                self.agents.append(agent)
 
         self.local_game = local_game # decide how to compute payoffs
         self.endowment = endowment
@@ -88,6 +95,8 @@ class PublicGoodsGame:
     def run_round(
             self,
             councils: bool = False,
+            vote_sight: int = 3,
+            update_sight: int = 3,
             mutation_enabled: bool = True,
             mutation_strength: float = 0.05,
             mutation_probability: float = 1.0) -> None:
@@ -185,6 +194,8 @@ class PublicGoodsGame:
 
             if councils:
                 self.run_council_steps(
+                    vote_sight=vote_sight,
+                    update_sight=update_sight,
                     mutation_enabled=mutation_enabled,
                     mutation_strength=mutation_strength,
                     mutation_probability=mutation_probability
@@ -195,6 +206,8 @@ class PublicGoodsGame:
 
     def run_council_steps(
             self,
+            vote_sight: int = 3,
+            update_sight: int = 3,
             mutation_enabled: bool = True,
             mutation_strength: float = 0.05,
             mutation_probability: float = 1.0) -> None:
@@ -205,7 +218,9 @@ class PublicGoodsGame:
         neighborhoods = list(self.world.neighborhoods.values())
 
         for neighborhood in neighborhoods:
-            neighborhood.council.hold_vote()
+            neighborhood.council.hold_vote(
+                vote_sight=vote_sight
+            )
 
         for neighborhood in neighborhoods:
             neighborhood.council.accept_expelled()
@@ -213,6 +228,7 @@ class PublicGoodsGame:
         for agent in self.agents:
             if agent.neighborhood is not None:
                 agent.update_strategy(
+                    sight=update_sight,
                     mutation_enabled=mutation_enabled,
                     mutation_strength=mutation_strength,
                     mutation_probability=mutation_probability
@@ -223,6 +239,8 @@ class PublicGoodsGame:
             self,
             turns: int,
             councils: bool = False,
+            vote_sight: int = 3,
+            update_sight: int = 3,
             show_stats: bool = True,
             show_map: bool = True,
             show_neighborhood_details: bool = False,
@@ -238,6 +256,8 @@ class PublicGoodsGame:
         for _ in range(turns):
             self.run_round(
                 councils=councils,
+                vote_sight=vote_sight,
+                update_sight=update_sight,
                 mutation_enabled=mutation_enabled,
                 mutation_strength=mutation_strength,
                 mutation_probability=mutation_probability
@@ -264,6 +284,9 @@ class PublicGoodsGame:
             num_neighborhoods: int = 4,
             local_game: bool = True,
             councils: bool = True,
+            vote_sight: int = 3,
+            update_sight: int = 3,
+            learning_rate: float | None = None,
             show_stats: bool = True,
             show_map: bool = True,
             show_neighborhood_details: bool = False,
@@ -283,12 +306,15 @@ class PublicGoodsGame:
             width=width,
             height=height,
             num_neighborhoods=num_neighborhoods,
-            local_game=local_game
+            local_game=local_game,
+            learning_rate=learning_rate
         )
 
         game.run_turns(
             turns=turns,
             councils=councils,
+            vote_sight=vote_sight,
+            update_sight=update_sight,
             show_stats=show_stats,
             show_map=show_map,
             show_neighborhood_details=show_neighborhood_details,

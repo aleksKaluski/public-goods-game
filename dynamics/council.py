@@ -3,12 +3,14 @@ class Council:
         self.neighborhood = neighborhood
         self.threshold = threshold
 
-    def hold_vote(self):
+    def hold_vote(self, vote_sight=3):
         votes = {}  # target_agent -> count
 
         # collect votes
         for agent in self.neighborhood.agents:
-            target = agent.vote() # should return a neighbour after searching the perimeter
+            target = agent.vote(
+                sight=vote_sight
+            ) # should return a neighbour after searching the perimeter
             if target is None:
                 continue
 
