@@ -1,5 +1,6 @@
+import random
 import uuid
-from agents.strategies import AlwaysCooperate, AlwaysDefect, RandomStrategy
+from agents.strategies import AlwaysCooperate, AlwaysDefect, RandomStrategy, AdaptiveStrategy
 from dynamics.world import World
 
 class Agent:
@@ -35,7 +36,8 @@ class Agent:
         mapping = {
             "coop": AlwaysCooperate(name="Cooperative"),
             "defect": AlwaysDefect(name="Defector"),
-            "random": RandomStrategy(name="Chaotic")
+            "random": RandomStrategy(name="Chaotic"),
+            "adaptive": AdaptiveStrategy(name="Adaptive")
         }
 
         self.strategy = mapping.get(strategy_name)
@@ -85,11 +87,11 @@ class Agent:
         print("-"*20)
 
 
-    def vote(self, world: World, sight: int = 3):
+    def vote(self, sight: int = 3):
         """
         Vote in order to exclude some agents.
         """
-        nearby_agents = world.get_agents_in_range(
+        nearby_agents = self.neighborhood.world.get_agents_in_range(
             self,
             sight
         )
@@ -105,4 +107,33 @@ class Agent:
 
         return voted_agent
 
+
+    # call after vote
+    def update_strategy(
+            self,
+            sight=3,
+            mutation_enabled=True,
+            mutation_strength=0.05,
+            mutation_probability=1.0):
+
+        if not hasattr(self.strategy, "update"):
+            return
+
+        nearby_agents = self.neighborhood.world.get_agents_in_range(
+            self,
+            sight
+        )
+
+        self.strategy.update(
+            nearby_agents
+        )
+
+        if (
+            mutation_enabled and
+            hasattr(self.strategy, "mutate") and
+            random.random() < mutation_probability
+        ):
+            self.strategy.mutate(
+                mutation_strength=mutation_strength
+            )
 

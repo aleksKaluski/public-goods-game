@@ -14,6 +14,8 @@ class World:
         self.height = height
         self.num_neighborhoods = num_neighborhoods
 
+        self.expelled_agents = [] # for expelled agents obviously
+
         # agents grid
         self.grid = [
             [None for _ in range(width)]
@@ -29,11 +31,11 @@ class World:
         # compute neighborhoods
         self.neighborhoods = {}
         for i in range(1, num_neighborhoods + 1):
-            self.neighborhoods[i] = Neighborhood(i)
+            self.neighborhoods[i] = Neighborhood(i, self)
         self.generate_neighborhoods()
 
 
-    def to_string(self):
+    def to_string(self, show_neighborhood_details=False):
         """
         Prints an aligned grid where each column width matches the longest Agent ID.
         Colors symbolize neighborhoods, while agents are displayed as their IDs.
@@ -69,8 +71,10 @@ class World:
             print("".join(row_str))
         print("=" * (self.width * (col_width + 1)) + "\n")
 
-        # for v in self.neighborhoods.values():
-        #     v.to_string()
+    # def to_string_neighborhoods(self):
+        if show_neighborhood_details:
+            for v in self.neighborhoods.values():
+                v.to_string()
 
 
     def generate_neighborhoods(self):
@@ -208,8 +212,8 @@ class World:
             n_id = self.map[y][x]
             if n_id is not None:
                 self.neighborhoods[n_id].add_agent(agent)
-                agent.neighborhood = n_id
-
+                # not necessary as function already points to the object
+                # agent.neighborhood = n_id
 
 
     def get_agents_in_range(self, center_agent, sight: int):
@@ -239,3 +243,10 @@ class World:
         return nearby_agents
 
 
+    def remove_agent_from_grid(self, agent):
+        if agent.x is not None and agent.y is not None:
+            self.grid[agent.y][agent.x] = None
+
+        agent.x = None
+        agent.y = None
+        agent.neighborhood = None
