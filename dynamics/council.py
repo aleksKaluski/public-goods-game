@@ -1,18 +1,44 @@
+"""
+This file implements the institution of Council: agents cen vote in order to expel the agents that contribute too
+little.
+"""
+from neighborhood import Neighborhood
+
 class Council:
-    def __init__(self, neighborhood, threshold=0):
+    """
+    Council system for neighborhood voting and expulsion. Each neighborhood has its own council that:
+    - conducts votes to expel free-riders
+    - accepts expelled agents
+    - tracks expelled agents to prevent re-acceptance
+    """
+    def __init__(self, neighborhood: Neighborhood, threshold: int=5):
+
+        # place where the voting takes place
+        # (each neighborhood gets council when created)
         self.neighborhood = neighborhood
+
+        # how many votes one needs to be expelled?
         self.threshold = threshold
+
+        # tract who was expelled
         self.last_expelled_agents = []
 
-    def hold_vote(self, vote_sight=3):
+
+    def hold_vote(self, vote_sight: int=3):
+        """
+        Decide which agents should be expelled. Radios of the vote = vote_sight.
+        """
         self.last_expelled_agents = []
         votes = {}  # target_agent -> count
 
-        # collect votes
+        # note on logic:
+        # agent's vote() method finds the agent with minimum contribution in range, but
+        # only votes for agents in the same neighborhood are counted, so
+        # an agent might vote for someone outside their neighborhood, but that vote is ignored
         for agent in self.neighborhood.agents:
-            target = agent.vote(
-                sight=vote_sight
-            ) # should return a neighbour after searching the perimeter
+            # should return a neighbor after searching the perimeter
+            target = agent.vote(sight=vote_sight)
+
             if target is None:
                 continue
 
@@ -40,9 +66,14 @@ class Council:
         
         return to_remove  # useful for debugging / tracking
 
-    # call this after turn 2 or something
-    # dont accept the ones expelled this turn
+
     def accept_expelled(self):
+        """
+        Accept expelled agents from other neighborhoods into this neighborhood.
+        In this case, we expell the richest agent (eat the rich ;))
+        - call this after turn 2 or something
+        - don't accept the ones expelled this turn
+        """
         expelled_agents = self.neighborhood.world.expelled_agents
 
         if not expelled_agents:
@@ -56,30 +87,40 @@ class Council:
         if not eligible_agents:
             return None
 
-        # example: accept richest eligible expelled agent
+        # example: accept the richest eligible expelled agent
         candidate = max(
             eligible_agents,
             key=lambda agent: agent.endowment
         )
 
+        # iterate through all the
+        # coords in the neighbourhood and find the empty spot
         empty_coordinate = None
         for x, y in self.neighborhood.coordinates:
             if self.neighborhood.world.grid[y][x] is None:
                 empty_coordinate = (x, y)
                 break
 
+        # place agent on the grid of empty coordinate
         if empty_coordinate is None:
             return None
 
         x, y = empty_coordinate
         self.neighborhood.world.grid[y][x] = candidate
+
+        # modify agent's position
         candidate.x = x
         candidate.y = y
+
         self.neighborhood.add_agent(candidate)
         expelled_agents.remove(candidate)
 
+        # return the accepted agent
         return candidate
 
     def strategy_check(self):
+        """
+        Update strategies for all agents in the neighborhood.
+        """
         for agent in self.neighborhood.agents:
             agent.update_strategy()

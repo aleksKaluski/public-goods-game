@@ -1,3 +1,8 @@
+"""
+This file implements the neigbourhood: a subset of the world
+that can compute the payoffs locally.
+"""
+
 from dynamics.council import Council
 
 class Neighborhood:
@@ -5,13 +10,9 @@ class Neighborhood:
     def __init__(self, identifier, world):
 
         self.identifier = identifier
-
         self.world = world
-
         self.agents = []
-
         self.coordinates = set()
-
         self.council = Council(self)
 
         # current amount of money
@@ -23,9 +24,7 @@ class Neighborhood:
         self.coordinates.add((x, y))
 
     def add_agent(self, agent):
-
         self.agents.append(agent)
-
         agent.neighborhood = self
 
     def remove_agent(self, agent):

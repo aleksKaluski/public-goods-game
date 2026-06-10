@@ -13,9 +13,9 @@ class PublicGoodsGame:
     def __init__(self, endowment: int,
                  factor: float,
                  strategy: dict,
-                 width: int = 0,
-                 height: int = 0,
-                 num_neighborhoods:int = 0,
+                 width: int = 5,
+                 height: int = 5,
+                 num_neighborhoods:int = 2,
                  local_game: bool = False,
                  learning_rate: float | None = None) -> None:
 
@@ -92,14 +92,13 @@ class PublicGoodsGame:
         return agent.contribution / available_money
 
 
-    def run_round(
-            self,
-            councils: bool = False,
-            vote_sight: int = 3,
-            update_sight: int = 3,
-            mutation_enabled: bool = True,
-            mutation_strength: float = 0.05,
-            mutation_probability: float = 1.0) -> None:
+    def run_round(self,
+                  councils: bool = False,
+                  vote_sight: int = 3,
+                  update_sight: int = 3,
+                  mutation_enabled: bool = True,
+                  mutation_strength: float = 0.05,
+                  mutation_probability: float = 1.0) -> None:
         """
         Run a single round of the game.
 

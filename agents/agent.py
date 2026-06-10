@@ -109,30 +109,31 @@ class Agent:
 
 
     # call after vote
-    def update_strategy(
-            self,
-            sight=3,
-            mutation_enabled=True,
-            mutation_strength=0.05,
-            mutation_probability=1.0):
+    def update_strategy(self,
+                        sight: int=3,
+                        mutation_enabled: bool=True,
+                        mutation_strength: float=0.05,
+                        mutation_probability: float=1.0):
 
+        """
+        Adapt behavior based on the performance of neighboring agents.
+        """
+
+        # check if strategy is updatable
         if not hasattr(self.strategy, "update"):
             return
 
-        nearby_agents = self.neighborhood.world.get_agents_in_range(
-            self,
-            sight
-        )
+        # find nearby agents and update the strategy
+        nearby_agents = self.neighborhood.world.get_agents_in_range(self, sight)
+        self.strategy.update(nearby_agents)
 
-        self.strategy.update(
-            nearby_agents
-        )
-
-        if (
-            mutation_enabled and
+        # mutate if possible
+        if (mutation_enabled and
             hasattr(self.strategy, "mutate") and
-            random.random() < mutation_probability
-        ):
+            random.random() < mutation_probability):
+
+            # add random value between -mutation_strength and
+            # +mutation_strength to contribution_rate
             self.strategy.mutate(
                 mutation_strength=mutation_strength
             )
