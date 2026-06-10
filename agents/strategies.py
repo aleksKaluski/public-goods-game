@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
 import random
-
+# make the other strategies formatted like adaptive startegy
 
 class BaseStrategy(ABC):
     """
     The Super Class for strategies. All Strategies should inherit this class.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, contribution_rate: float = 0.0):
         self.name = name
+        self.contribution_rate = contribution_rate
 
     @abstractmethod
     def decide_contribution(self,
@@ -30,6 +31,12 @@ class AlwaysCooperate(BaseStrategy):
     """
     Naive cooperation strategy.
     """
+    def __init__(self, name="Cooperative"):
+        super().__init__(
+            name=name,
+            contribution_rate=1.0
+        )
+
     def decide_contribution(self,
                             payoff: int | float,
                             endowment: int,
@@ -45,6 +52,12 @@ class AlwaysDefect(BaseStrategy):
     """
     Naive defection strategy.
     """
+    def __init__(self, name="Defector"):
+        super().__init__(
+            name=name,
+            contribution_rate=0.0
+        )
+
     def decide_contribution(self,
                             payoff: int | float,
                             endowment: int,
@@ -59,13 +72,26 @@ class RandomStrategy(BaseStrategy):
     """
     Random strategy.
     """
+    def __init__(self, name="Chaotic"):
+        super().__init__(
+            name=name,
+            contribution_rate=0.0
+        )
+
     def decide_contribution(self,
                             payoff: int | float,
                             endowment: int,
                             contribution_history: list,
                             payoff_history: list) -> int:
 
-        return random.randint(0, endowment)
+        contribution = random.randint(0, endowment)
+
+        if endowment > 0:
+            self.contribution_rate = contribution / endowment
+        else:
+            self.contribution_rate = 0
+
+        return contribution
 
     def to_string(self):
         return "RandomStrategy"
@@ -84,9 +110,10 @@ class AdaptiveStrategy(BaseStrategy):
             contribution_rate=0.5,
             learning_rate=0.2):
 
-        super().__init__(name)
-
-        self.contribution_rate = contribution_rate
+        super().__init__(
+            name=name,
+            contribution_rate=contribution_rate
+        )
         self.learning_rate = learning_rate
 
     def decide_contribution(

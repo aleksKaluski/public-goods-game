@@ -383,9 +383,9 @@ class PublicGoodsGame:
                 print(
                     f"\t\tNeighborhood {neighborhood.identifier}: "
                     f"agents={len(agents)}, "
-                    f"wealth={round(average_wealth, 2)}, "
-                    f"contribution={round(neighborhood_average_contribution, 2)}, "
-                    f"contribution rate={round(average_contribution_rate, 2)}, "
+                    f"avg wealth={round(average_wealth, 2)}, "
+                    f"avg contribution={round(neighborhood_average_contribution, 2)}, "
+                    f"avg contribution rate={round(average_contribution_rate, 2)}, "
                     f"local pot={round(neighborhood.local_pot, 2)}"
                 )
 

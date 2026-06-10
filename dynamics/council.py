@@ -2,8 +2,10 @@ class Council:
     def __init__(self, neighborhood, threshold=0):
         self.neighborhood = neighborhood
         self.threshold = threshold
+        self.last_expelled_agents = []
 
     def hold_vote(self, vote_sight=3):
+        self.last_expelled_agents = []
         votes = {}  # target_agent -> count
 
         # collect votes
@@ -33,19 +35,30 @@ class Council:
         for agent in to_remove:
             self.neighborhood.remove_agent(agent)
             self.neighborhood.world.expelled_agents.append(agent)
+
+        self.last_expelled_agents = to_remove
         
         return to_remove  # useful for debugging / tracking
 
-    #call this after turn 2 or something
+    # call this after turn 2 or something
+    # dont accept the ones expelled this turn
     def accept_expelled(self):
         expelled_agents = self.neighborhood.world.expelled_agents
 
         if not expelled_agents:
             return None
 
-        # example: accept richest expelled agent
+        eligible_agents = [
+            agent for agent in expelled_agents
+            if agent not in self.last_expelled_agents
+        ]
+
+        if not eligible_agents:
+            return None
+
+        # example: accept richest eligible expelled agent
         candidate = max(
-            expelled_agents,
+            eligible_agents,
             key=lambda agent: agent.endowment
         )
 
