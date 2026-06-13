@@ -56,7 +56,7 @@ class GameStatistics:
         coop_count = 0
         cumualted_wealth = 0
         for agent in self.game.agents:
-            if agent.contribution_history[-1] != 0:
+            if agent.contribution_history[-1] != 0 or agent.strategy.name == "Cooperative":
                 coop_count += 1
 
             cumualted_wealth += agent.endowment
@@ -162,7 +162,7 @@ class GameStatistics:
         print(f"Factor: {last.factor}")
         print("=" * 60 + "\n")
 
-    def plot_history(self, figsize=(12, 8), save_path: Optional[str] = None):
+    def plot_history(self, figsize=(12, 8), save_path: Optional[str] = None, title: Optional[str] = None):
         """
         Plot the complete history with all metrics in subplots.
         """
@@ -171,7 +171,10 @@ class GameStatistics:
             return
 
         fig, axes = plt.subplots(2, 2, figsize=figsize)
-        fig.suptitle('Public Goods Game Evolution', fontsize=16, y=1.02)
+
+        suptitle_text = title if title is not None else 'Public Goods Game Evolution'
+        fig.suptitle(suptitle_text, fontsize=16)
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         # Extract data
         rounds = [s.round_number for s in self.history]

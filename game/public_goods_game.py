@@ -62,7 +62,7 @@ class PublicGoodsGame:
         """
 
         neighborhood = agent.neighborhood
-        payoff = int(neighborhood.local_pot//len(neighborhood.agents))
+        payoff = int(neighborhood.local_pot/len(neighborhood.agents))
 
         agent.receive_payoff(payoff)
         return payoff
@@ -181,10 +181,10 @@ class PublicGoodsGame:
                             mutation_strength=mutation_strength,
                             mutation_probability=mutation_probability)
 
-            if show_map:
-                self.world.to_string(
-                    show_neighborhood_details=show_neighborhood_details
-                )
+        if show_map:
+            self.world.to_string(
+                show_neighborhood_details=show_neighborhood_details
+            )
 
 
     @classmethod
@@ -230,4 +230,5 @@ class PublicGoodsGame:
                         mutation_enabled=mutation_enabled,
                         mutation_strength=mutation_strength,
                         mutation_probability=mutation_probability)
+
         return game
