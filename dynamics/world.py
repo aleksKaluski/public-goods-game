@@ -28,6 +28,9 @@ class World:
             for _ in range(height)
         ]
 
+        # keeps info who was expelled from where
+        self.expelled_from = {}
+
         # compute neighborhoods
         self.neighborhoods = {}
         for i in range(1, num_neighborhoods + 1):

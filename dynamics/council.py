@@ -62,6 +62,7 @@ class Council:
         for agent in to_remove:
             self.neighborhood.remove_agent(agent)
             self.neighborhood.world.expelled_agents.append(agent)
+            self.neighborhood.world.expelled_from[agent] = self.neighborhood.identifier
 
         self.last_expelled_agents = to_remove
         
@@ -83,6 +84,7 @@ class Council:
         eligible_agents = [
             agent for agent in expelled_agents
             if agent not in self.last_expelled_agents
+               and self.neighborhood.world.expelled_from.get(agent) != self.neighborhood.identifier
         ]
 
         if not eligible_agents:

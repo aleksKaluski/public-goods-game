@@ -1,20 +1,19 @@
 from game.public_goods_game import PublicGoodsGame
 
 # set the params of the experiment
-turns = 200
+turns = 500
 width = 8
 height = 8
-num_neighbourhoods = 5
+num_neighbourhoods = 10
 endowment = 100
 factor = 1.1
-councils = False
+councils = True
 mutation_enabled = True
 show_map = True
 
 # first condition: just defectors
-strategies = {"defect": 10,
-              "adaptive": 40,
-              "coop": 10}
+strategies = {"defect": 4,
+              "adaptive": 60}
 
 pgg = PublicGoodsGame.run_simulation(turns=turns,
                                       width=width,
