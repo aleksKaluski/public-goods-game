@@ -32,6 +32,10 @@ class World:
         self.neighborhoods = {}
         for i in range(1, num_neighborhoods + 1):
             self.neighborhoods[i] = Neighborhood(i, self)
+
+            # avoid circularity
+            from dynamics.council import Council
+            self.neighborhoods[i].council = Council(self.neighborhoods[i])
         self.generate_neighborhoods()
 
 

@@ -3,7 +3,7 @@ This file implements the neigbourhood: a subset of the world
 that can compute the payoffs locally.
 """
 
-from dynamics.council import Council
+# from dynamics.council import Council
 
 class Neighborhood:
 
@@ -13,14 +13,13 @@ class Neighborhood:
         self.world = world
         self.agents = []
         self.coordinates = set()
-        self.council = Council(self)
+        self.council = None
 
         # current amount of money
         # within one neighborhood
         self.local_pot = 0
 
     def add_coordinate(self, x, y):
-
         self.coordinates.add((x, y))
 
     def add_agent(self, agent):
@@ -28,16 +27,21 @@ class Neighborhood:
         agent.neighborhood = self
 
     def remove_agent(self, agent):
-
         if agent in self.agents:
             self.agents.remove(agent)
             self.world.remove_agent_from_grid(agent)
 
-    def get_agents_in_neighborhood(self):
+    def reset_local_pot(self):
         """
-        Function that returns all agents in a given neighborhood.
+        Reset the local pot at the start of a new round.
         """
-        return self.agents
+        self.local_pot = 0
+
+    def add_contribution(self, amount: int):
+        """
+        Add an agent's contribution to the local pot.
+        """
+        self.local_pot += amount
 
 
     def to_string(self, color_code="\033[94m"):

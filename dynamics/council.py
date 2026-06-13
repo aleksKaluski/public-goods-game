@@ -2,7 +2,8 @@
 This file implements the institution of Council: agents cen vote in order to expel the agents that contribute too
 little.
 """
-from neighborhood import Neighborhood
+
+from dynamics.neighborhood import Neighborhood
 
 class Council:
     """
@@ -70,7 +71,7 @@ class Council:
     def accept_expelled(self):
         """
         Accept expelled agents from other neighborhoods into this neighborhood.
-        In this case, we expell the richest agent (eat the rich ;))
+        In this case, we expel the richest agent (eat the rich ;))
         - call this after turn 2 or something
         - don't accept the ones expelled this turn
         """

@@ -60,6 +60,10 @@ class Agent:
             self.endowment -= contribution
             self.contribution_history.append(contribution)
 
+            # add contribution to the local pot
+            if self.neighborhood is not None:
+                self.neighborhood.add_contribution(contribution)
+
         except UnboundLocalError:
             print("Contribution cannot be made, since the strategy not 'coop', 'defect' or 'random'.")
 

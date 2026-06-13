@@ -1,6 +1,12 @@
 # Public Goods Game  
 This repository implements the [Public Goods Game](https://en.wikipedia.org/wiki/Public_goods_game).
 
+**AI statement:** a local model Quen3 4B 2507 was used solely for simple grammatical correction of README file. Although 
+very long, the documentation is not AI-generated slop, so please read it ;) Mistral, Gemini 2.5 flash and Clause Sonnet 4.6 
+were employed to help with the implementation, but their help was mostly 
+conceptual and based on code refinement, designing project structure and finding errors.  
+
+
 ## 1) Theoretical introduction  
 ### What is the Public Goods Game?  
 The **Public Goods Game (PGG)** is a classic of game theoretical modelling — a framework for describing and analyzing people's behaviour, initialized by the famous book *Theory of Games and Economic Behavior* written by Morgenstern and von Neumann. Of course, the central concept of this framework is *a game* – a model of a situation which can be applied to many other situations with a similar structure. A game always has two players at minimum. Actions available to these players are called *strategies*. Based on their strategies, players receive *payoffs* that are outcomes of the game.  

@@ -16,24 +16,23 @@ UPDATE_SIGHT = 3
 LEARNING_RATE = 0.2
 
 pgg = PublicGoodsGame.run_simulation(
-    turns=TURNS,
-    endowment=ENDOWMENT,
-    factor=FACTOR,
-    strategy=STRATEGIES,
-    width=WIDTH,
-    height=HEIGHT,
-    num_neighborhoods=NUM_NEIGHBORHOODS,
-    local_game=True,
-    councils=True,
-    vote_sight=VOTE_SIGHT,
-    update_sight=UPDATE_SIGHT,
-    learning_rate=LEARNING_RATE,
-    show_stats=True,
-    show_map=True,
-    show_neighborhood_details=SHOW_NEIGHBORHOOD_DETAILS,
-    mutation_enabled=MUTATION_ENABLED,
-    mutation_strength=MUTATION_STRENGTH,
-    mutation_probability=MUTATION_PROBABILITY
+                                    turns=TURNS,
+                                    endowment=ENDOWMENT,
+                                    factor=FACTOR,
+                                    strategy=STRATEGIES,
+                                    width=WIDTH,
+                                    height=HEIGHT,
+                                    num_neighborhoods=NUM_NEIGHBORHOODS,
+                                    councils=True,
+                                    vote_sight=VOTE_SIGHT,
+                                    update_sight=UPDATE_SIGHT,
+                                    learning_rate=LEARNING_RATE,
+                                    show_stats=True,
+                                    show_map=True,
+                                    show_neighborhood_details=SHOW_NEIGHBORHOOD_DETAILS,
+                                    mutation_enabled=MUTATION_ENABLED,
+                                    mutation_strength=MUTATION_STRENGTH,
+                                    mutation_probability=MUTATION_PROBABILITY
 )
 
 
