@@ -286,21 +286,18 @@ class PublicGoodsGame:
         """
         Create and run a game with configurable world size and turn count.
         """
-        if strategy is None:
-            strategy = {"adaptive": 12}
 
         # define game rules
         game = cls(endowment=endowment,
-            factor=factor,
-            strategy=strategy,
-            width=width,
-            height=height,
-            num_neighborhoods=num_neighborhoods,
-            learning_rate=learning_rate)
+                    factor=factor,
+                    strategy=strategy,
+                    width=width,
+                    height=height,
+                    num_neighborhoods=num_neighborhoods,
+                    learning_rate=learning_rate)
 
         # run various turns
-        game.run_turns(
-            turns=turns,
+        game.run_turns(turns=turns,
             councils=councils,
             vote_sight=vote_sight,
             update_sight=update_sight,

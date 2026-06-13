@@ -220,12 +220,18 @@ class World:
 
 
     def get_agents_in_range(self, center_agent, sight: int):
+        """
+        Gets agents in range defined by sight but only if they are from the same
+        neighborhood.
+        """
 
         nearby_agents = []
 
+        # center agent the agent that observes
         cx = center_agent.x
         cy = center_agent.y
 
+        # compute sight range
         min_x = max(0, cx - sight)
         max_x = min(self.width - 1, cx + sight)
 
@@ -236,14 +242,17 @@ class World:
             for x in range(min_x, max_x + 1):
 
                 agent = self.grid[y][x]
-
                 if agent is None:
                     continue
 
                 if agent == center_agent:
                     continue
                 nearby_agents.append(agent)
-        return nearby_agents
+
+        # filter by the same neighborhood
+        same_neighborhood_agents = [a for a in nearby_agents if a.neighborhood == center_agent.neighborhood]
+
+        return same_neighborhood_agents
 
 
     def remove_agent_from_grid(self, agent):
