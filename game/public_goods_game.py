@@ -1,6 +1,6 @@
 from agents.agent import Agent
 from dynamics.world import World
-
+from game.stats import GameStatistics
 
 class PublicGoodsGame:
     """
@@ -50,11 +50,9 @@ class PublicGoodsGame:
         self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
         self.world.fill_with_agents(agents=self.agents)
 
-        # track history
-        self.history = [] # all previous states of the game
-
-        # game stats (fast and for testing)
         self.number_of_turns = 1
+
+        self.game_stats = GameStatistics(self)
 
 
     def calculate_payoffs(self, agent: Agent) -> int:
@@ -68,21 +66,6 @@ class PublicGoodsGame:
 
         agent.receive_payoff(payoff)
         return payoff
-
-
-    def cooperation_rate(self, agent: Agent) -> float:
-        """
-        Measure cooperation as the strategy's intended contribution rate.
-        """
-        if hasattr(agent.strategy, "contribution_rate"):
-            return agent.strategy.contribution_rate
-
-        available_money = agent.endowment + agent.contribution
-
-        if available_money <= 0:
-            return 0
-
-        return agent.contribution / available_money
 
 
     def run_council_steps(self, sight: int = 5) -> None:
@@ -119,56 +102,6 @@ class PublicGoodsGame:
                     mutation_probability=mutation_probability)
 
 
-    def record_round(self, **kwargs):
-        """
-        Transfer info about a single round of the game to the list of dicts (self.history)
-        """
-        self.history.append({
-            "round_number": kwargs.get('round_number'),
-            "factor": kwargs.get('factor'),
-            "average_cooperation": round(kwargs.get('average_cooperation'), 2),
-            "public_goods": round(kwargs.get('public_goods'), 2),
-            "agents": kwargs.get('agents')
-        })
-
-
-    def game_stats(self):
-        """
-        Retrieve game stats.
-        """
-        n_rounds = self.history[-1].get("round_number")
-        average_cooperation = self.history[-1].get("average_cooperation")
-        public_goods = self.history[-1].get("public_goods")
-
-        print(f"\nGame stats after {n_rounds} turns:")
-        print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
-        print(f"\tPublic goods: {round(public_goods, 2)}")
-
-        print("\tNeighborhood stats:")
-        for neighborhood in self.world.neighborhoods.values():
-            agents = neighborhood.agents
-
-            if not agents:
-                print(
-                    f"\t\tNeighborhood {neighborhood.identifier}: "
-                    "agents=0"
-                )
-                continue
-
-            average_wealth = sum(agent.endowment for agent in agents) / len(agents)
-            average_contribution_rate = sum(self.cooperation_rate(agent) for agent in agents) / len(agents)
-
-            print(
-                f"\t\tNeighborhood {neighborhood.identifier}: "
-                f"agents={len(agents)}, "
-                f"avg wealth={round(average_wealth, 2)}, "
-                f"avg contribution rate={round(average_contribution_rate, 2)}, "
-                f"local pot={round(neighborhood.local_pot, 2)}"
-            )
-
-        return average_cooperation, n_rounds
-
-
     def run_round(self,
                   councils: bool = False,
                   vote_sight: int = 3,
@@ -193,7 +126,6 @@ class PublicGoodsGame:
             for agent in n.agents:
                 agent.decide_contribution()
                 neighborhood_contributions += agent.contribution
-                total_cooperation_rate += self.cooperation_rate(agent)
 
             n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
 
@@ -209,14 +141,6 @@ class PublicGoodsGame:
                     "strategy": agent.strategy
                 })
 
-        self.record_round(
-            round_number=self.number_of_turns,
-            factor=self.factor,
-            average_cooperation=total_cooperation_rate / self.n_agents,
-            public_goods=self.public_goods,
-            agents= agent_moves
-        )
-
         # run council
         if councils:
             self.run_council_steps(sight=vote_sight)
@@ -228,6 +152,8 @@ class PublicGoodsGame:
                                      mutation_probability=mutation_probability)
 
         self.number_of_turns += 1
+
+        self.game_stats.calculate_round_stats()
 
 
     def run_turns(self,
@@ -259,9 +185,6 @@ class PublicGoodsGame:
                 self.world.to_string(
                     show_neighborhood_details=show_neighborhood_details
                 )
-
-            if show_stats:
-                self.game_stats()
 
 
     @classmethod
@@ -298,14 +221,13 @@ class PublicGoodsGame:
 
         # run various turns
         game.run_turns(turns=turns,
-            councils=councils,
-            vote_sight=vote_sight,
-            update_sight=update_sight,
-            show_stats=show_stats,
-            show_map=show_map,
-            show_neighborhood_details=show_neighborhood_details,
-            mutation_enabled=mutation_enabled,
-            mutation_strength=mutation_strength,
-            mutation_probability=mutation_probability
-        )
+                        councils=councils,
+                        vote_sight=vote_sight,
+                        update_sight=update_sight,
+                        show_stats=show_stats,
+                        show_map=show_map,
+                        show_neighborhood_details=show_neighborhood_details,
+                        mutation_enabled=mutation_enabled,
+                        mutation_strength=mutation_strength,
+                        mutation_probability=mutation_probability)
         return game

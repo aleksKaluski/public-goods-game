@@ -3,8 +3,6 @@ This file implements the neigbourhood: a subset of the world
 that can compute the payoffs locally.
 """
 
-# from dynamics.council import Council
-
 class Neighborhood:
 
     def __init__(self, identifier, world):
@@ -18,6 +16,7 @@ class Neighborhood:
         # current amount of money
         # within one neighborhood
         self.local_pot = 0
+
 
     def add_coordinate(self, x, y):
         self.coordinates.add((x, y))
