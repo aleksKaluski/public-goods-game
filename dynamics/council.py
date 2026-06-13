@@ -12,14 +12,14 @@ class Council:
     - accepts expelled agents
     - tracks expelled agents to prevent re-acceptance
     """
-    def __init__(self, neighborhood: Neighborhood, threshold: int=5):
+    def __init__(self, neighborhood: Neighborhood):
 
         # place where the voting takes place
         # (each neighborhood gets council when created)
         self.neighborhood = neighborhood
 
         # how many votes one needs to be expelled?
-        self.threshold = threshold
+        self.threshold = len(self.neighborhood.agents) * 0.7
 
         # tract who was expelled
         self.last_expelled_agents = []

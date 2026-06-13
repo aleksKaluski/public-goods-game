@@ -90,25 +90,21 @@ class Agent:
         print(f"Neighborhood: {self.neighborhood}")
         print("-"*20)
 
-
     def vote(self, sight: int = 3):
-        """
-        Vote in order to exclude some agents.
-        """
-        nearby_agents = self.neighborhood.world.get_agents_in_range(
-            self,
-            sight
-        )
-
+        nearby_agents = self.neighborhood.world.get_agents_in_range(self, sight)
         if not nearby_agents:
             return None
 
-        # choose agent with minimum contribution or something else
-        voted_agent = min(
-            nearby_agents,
-            key=lambda agent: agent.contribution
-        )
+        # vote against agents who contributed less than me
+        agents_with_lower_contribution = [
+            agent for agent in nearby_agents
+            if agent.contribution < self.contribution
+        ]
 
+        if not agents_with_lower_contribution:
+            return None  # do not vote if everyone contributed at least as much as me
+
+        voted_agent = min(agents_with_lower_contribution, key=lambda agent: agent.contribution)
         return voted_agent
 
 

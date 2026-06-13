@@ -4,7 +4,7 @@ from game.public_goods_game import PublicGoodsGame
 turns = 500
 width = 8
 height = 8
-num_neighbourhoods = 10
+num_neighbourhoods = 1
 endowment = 100
 factor = 1.1
 councils = True
