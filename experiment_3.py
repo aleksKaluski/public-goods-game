@@ -2,11 +2,10 @@ from game.public_goods_game import PublicGoodsGame
 
 #########################################################################
 """
-II Experiment: Defense mechanism impact the the decay of cooperation
+III Experiment: Local or global pot
 
-Adaptive strategies are extremely fragile in terms of spreading the defecting mechanisms. If one member of community
-is defecting and - thanks to that - receiving more payoff, why should I do it? We will compare the introduction the 
-voting mechanism protects the community from spreading the free-rider strategy.
+How should we pay taxes? Which model is better? A global model where the whole society puts some money to the
+public pot, or a framework where you contribute to your local community?
 """
 
 
@@ -14,16 +13,17 @@ voting mechanism protects the community from spreading the free-rider strategy.
 turns = 500
 width = 10
 height = 10
-num_neighbourhoods = 4
 endowment = 100
-factor = 1.1
-councils = False
+factor = 1.05
+councils = True
 mutation_enabled = True
 show_map = True
 
-# first condition: just defectors
-strategies = {"defect": 5,
-              "adaptive": 80}
+# first condition
+num_neighbourhoods = 7
+strategies = {"defect": 3,
+              "adaptive": 80,
+              "coop": 3}
 
 pgg = PublicGoodsGame.run_simulation(turns=turns,
                                       width=width,
@@ -36,10 +36,10 @@ pgg = PublicGoodsGame.run_simulation(turns=turns,
                                      mutation_enabled=mutation_enabled,
                                      show_map=show_map)
 
-pgg.game_stats.plot_history(title="[EXP 2] Lack of council vs 5 defectors", save_path=r'plots/no_council.png')
+pgg.game_stats.plot_history(title="[EXP 3] 7 local pots", save_path=r'plots/7_local_pots.png')
 
-
-councils = True
+# second condition
+num_neighbourhoods = 1
 pgg = PublicGoodsGame.run_simulation(turns=turns,
                                       width=width,
                                       height=height,
@@ -51,4 +51,4 @@ pgg = PublicGoodsGame.run_simulation(turns=turns,
                                      mutation_enabled=mutation_enabled,
                                      show_map=show_map)
 
-pgg.game_stats.plot_history(title="[EXP 2] Council vs 5 defectors", save_path=r'plots/council.png')
+pgg.game_stats.plot_history(title="[EXP 3] 1 global pot", save_path=r'plots/1_global_pot.png')

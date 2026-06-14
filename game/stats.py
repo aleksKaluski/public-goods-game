@@ -4,25 +4,10 @@ experiments.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
-from collections import defaultdict
 import matplotlib.pyplot as plt
 from typing import List, Optional
 
 
-@dataclass
-class NeighborhoodStats:
-    """
-    Statistics for a single neighborhood
-    """
-    neighborhood_id: int
-    agent_count: int
-    avg_wealth: float
-    avg_contribution: float
-    avg_contribution_rate: float
-    total_contribution: int
-    local_pot: int
-    expelled_count: int
 
 
 @dataclass
@@ -81,23 +66,6 @@ class GameStatistics:
         # append history
         self.history.append(stats)
         return stats
-
-
-    def calculate_neighborhood_stats(self, neighborhood) -> NeighborhoodStats:
-        """Calculate stats for a single neighborhood"""
-        # Implementation here
-
-    def get_cooperation_rate(self, agent) -> float:
-        """Unified cooperation rate calculation"""
-        # Use the same logic everywhere
-
-    def export_to_dict(self) -> dict:
-        """Export all stats as a dictionary for experiments"""
-        # For easy comparison between runs
-
-    def export_to_dataframe(self):
-        """Export stats as pandas DataFrame (if pandas available)"""
-        # For analysis and plotting
 
     ####################################################################################################################
     # Visualization created with Mistral Vibe
