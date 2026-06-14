@@ -17,7 +17,7 @@ The Public Goods Game (PGG) is a classic in game-theoretical modelling — a fra
 
 Trivially speaking, there are various games and various ways of classifying them. The type of games we are interested in are **simultaneous games with cooperation combined with agent-based modelling**. In simultaneous games, when a player makes a decision, she does not know all the factors that will determine the outcomes (e.g., the behaviour of other players). If a simultaneous game is also a cooperative one, then the outcome of the game heavily relies on relationships with others, since the payoff is distributed among all players.
 
-The Public Goods Game applies this framework to model how people pay taxes, contribute to social services, etc. Thus, PGG can be described as follows: there is a number of players in the game. Each player starts with a certain sum of money (e.g., $20) and, in each turn, decides how much she would like to contribute to the public pot. The money from the pot is then multiplied by a factor (e.g., 2), divided by the number of players, and distributed equally among them. Of course, whether or not the PGG describes any actual phenomenon depends on what the public good is. Intuitively, a public good is one that can be shared by many agents (Kurz), such as public transport, street lighting, or radio waves.
+The Public Goods Game applies this framework to model how people pay taxes, contribute to social services, etc. Thus, PGG can be described as follows: there is a number of players in the game. Each player starts with a certain sum of money (e.g., $20) and, in each turn, decides how much she would like to contribute to the public pot. The money from the pot is then multiplied by a factor (e.g., 2), divided by the number of players, and distributed equally among them. Of course, whether or not the PGG describes any actual phenomenon depends on what the public good is. Intuitively, **a public good is one that can be shared by many agents** (Kurz 1994), such as public transport, street lighting, or radio waves.
 
 ### The Theory Behind Paying Taxes
 
@@ -235,3 +235,9 @@ af829 91d5f #     #     #     8cabf #     285f9
 ```
 
 We tried introducing custom voting thresholds for each neighborhood and adding conditions such as "I will vote against the agent if he contributes less than me". Unfortunately, in adaptive communities, the between-subject variance is too high, and we always ended up with desolate, depopulated worlds. That's why we did not implement anything else for the 1-neighborhood scenario.
+
+## 6) Sources
+The project is not an implementation of a single paper. Bellow we attach the sources of inspiration and knowledge.
+* https://arxiv.org/abs/2407.19851
+* https://link.springer.com/article/10.1007/s00521-024-10530-6
+* https://www.sciencedirect.com/science/chapter/handbook/pii/S1574000505800657
