@@ -1,6 +1,6 @@
 from agents.agent import Agent
-import pandas as pd
-
+from dynamics.world import World
+from game.stats import GameStatistics
 
 class PublicGoodsGame:
     """
@@ -10,7 +10,15 @@ class PublicGoodsGame:
     - Run rounds of the game
     - Save info about the hame history
     """
-    def __init__(self, endowment: int, factor: float, strategy: dict):
+    def __init__(self,
+                 endowment: int,
+                 factor: float,
+                 strategy: dict,
+                 width: int = 5,
+                 height: int = 5,
+                 num_neighborhoods:int = 2,
+                 learning_rate: float | None = None) -> None:
+
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
         # {"coop" : 10, "defect" :5, "random":0} means that we have 15 agents
@@ -21,22 +29,30 @@ class PublicGoodsGame:
         assert (strategy != {}), "Strategy must not be empty!"
 
         self.n_agents = sum(strategy.values()) # number of agents
+
+        # initialize various agents
         self.agents = []
+        for key in strategy:
+            for i in range(strategy[key]):
+                agent = Agent(endowment, key)
+
+                # strategy has lr, add it
+                if (learning_rate is not None and
+                    hasattr(agent.strategy, "learning_rate")):
+                    agent.strategy.learning_rate = learning_rate
+                self.agents.append(agent)
 
         self.endowment = endowment
         self.factor = factor # factor that multiplies the payoff from public pot
         self.public_goods = 0
 
-        # initialize various agents
-        for key in strategy:
-            for i in range(strategy[key]): self.agents.append(Agent(endowment,
-                                                                    key))
+        # initialize the world and fill it with agents
+        self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
+        self.world.fill_with_agents(agents=self.agents)
 
-        # track history
-        self.history = [] # all previous states of the game
-
-        # game stats (fast and for testing)
         self.number_of_turns = 1
+
+        self.game_stats = GameStatistics(self)
 
 
     def calculate_payoffs(self, agent: Agent) -> int:
@@ -44,88 +60,175 @@ class PublicGoodsGame:
         Calculates the payoff for each agent in the game and makes the agent receive it.
         As for now we make it in a naive way.
         """
-        payoff = int(self.public_goods//self.n_agents)
+
+        neighborhood = agent.neighborhood
+        payoff = int(neighborhood.local_pot/len(neighborhood.agents))
+
         agent.receive_payoff(payoff)
         return payoff
 
 
-    def run_round(self) -> None:
+    def run_council_steps(self, sight: int = 5) -> None:
         """
-        Run a single round of the game.
+        Run council phases after contributions and payoffs:
+        votes, acceptance.
+        """
+        neighborhoods = list(self.world.neighborhoods.values())
+
+        for neighborhood in neighborhoods:
+            neighborhood.council.hold_vote(
+                vote_sight=sight
+            )
+
+        for neighborhood in neighborhoods:
+            neighborhood.council.accept_expelled()
+
+
+    def update_agent_strategies(self,
+                                sight: int = 3,
+                                mutation_enabled: bool = True,
+                                mutation_strength: float = 0.05,
+                                mutation_probability: float = 1.0) -> None:
+        """
+        Update strategies  of all (adaptive) agents after contributions and payoffs.
         """
 
-        # collect contributions from all agents
-        total_contributions = 0
-        n_agents_contributed = 0
         for agent in self.agents:
-            agent.decide_contribution()
-            # agent.to_string()
+            if agent.neighborhood is not None:
+                agent.update_strategy(
+                    sight=sight,
+                    mutation_enabled=mutation_enabled,
+                    mutation_strength=mutation_strength,
+                    mutation_probability=mutation_probability)
 
-            contribution = agent.contribution
-            total_contributions += contribution
 
-            if contribution > 0:
-                n_agents_contributed += 1
-
-        # multiply them by a factor
-        if self.factor < 1:
-            self.public_goods = total_contributions * self.factor + total_contributions
-        else:
-            self.public_goods = total_contributions*self.factor
-
-        # give payoff to agents
+    def run_round(self,
+                  councils: bool = False,
+                  vote_sight: int = 3,
+                  update_sight: int = 3,
+                  mutation_enabled: bool = True,
+                  mutation_strength: float = 0.05,
+                  mutation_probability: float = 1.0) -> None:
+        """
+        Run a single round of the game:
+        council votes, acceptance of expelled agents, then strategy updates.
+        """
+        total_cooperation_rate = 0
         agent_moves = []
-        list_of_payoffs = []
-        for agent in self.agents:
-            calculated_payoff = self.calculate_payoffs(agent)
-            list_of_payoffs.append(calculated_payoff)
 
-            agent_moves.append({"id": agent.identifier,
-                                "payoff": agent.payoff,
-                                "contribution": agent.contribution,
-                                "strategy": agent.strategy})
+        # reset public googs in each rund
+        self.public_goods = 0
 
-        # compute stats and keep them in the dict
-        self.record_round(round_number=self.number_of_turns,
-                          factor=self.factor,
-                          average_contribution= total_contributions / self.n_agents,
-                          average_cooperation=n_agents_contributed / self.n_agents,
-                          average_payoff=sum(list_of_payoffs) / len(list_of_payoffs),
-                          public_goods=self.public_goods,
-                          agents=agent_moves)
+        # compute the local pot for each neighborhood
+        for n in self.world.neighborhoods.values():
+            neighborhood_contributions = 0
+
+            for agent in n.agents:
+                agent.decide_contribution()
+                neighborhood_contributions += agent.contribution
+
+            n.local_pot = neighborhood_contributions * (self.factor + 1 if self.factor < 1 else self.factor)
+
+            self.public_goods  += n.local_pot
+
+            for agent in n.agents:
+                payoff = self.calculate_payoffs(agent)
+
+                agent_moves.append({
+                    "id": agent.identifier,
+                    "payoff": payoff,
+                    "contribution": agent.contribution,
+                    "strategy": agent.strategy
+                })
+
+        # run council
+        if councils:
+            self.run_council_steps(sight=vote_sight)
+
+        # change the strategies
+        self.update_agent_strategies(sight=update_sight,
+                                     mutation_enabled=mutation_enabled,
+                                     mutation_strength=mutation_strength,
+                                     mutation_probability=mutation_probability)
 
         self.number_of_turns += 1
 
-    def record_round(self, **kwargs):
+        self.game_stats.calculate_round_stats()
+
+
+    def run_turns(self,
+                  turns: int,
+                  councils: bool = False,
+                  vote_sight: int = 3,
+                  update_sight: int = 3,
+                  show_stats: bool = True,
+                  show_map: bool = True,
+                  show_neighborhood_details: bool = False,
+                  mutation_enabled: bool = True,
+                  mutation_strength: float = 0.05,
+                  mutation_probability: float = 1.0) -> None:
         """
-        Transfer info about a single round of the game to the list of dicts (self.history)
+        Run any number of turns and optionally print stats/map after each turn.
         """
-        self.history.append({
-            "round_number": kwargs.get('round_number'),
-            "factor": kwargs.get('factor'),
-            "average_contribution": round(kwargs.get('average_contribution'), 2),
-            "average_cooperation": round(kwargs.get('average_cooperation'), 2),
-            "average_payoff": round(kwargs.get('average_payoff'), 2),
-            "public_goods": round(kwargs.get('public_goods'), 2),
-            "agents": kwargs.get('agents')
-        })
+        assert turns >= 0, "Turns must be non-negative"
+        assert 0 <= mutation_probability <= 1, "Mutation probability must be between 0 and 1"
+
+        for _ in range(turns):
+            self.run_round(councils=councils,
+                            vote_sight=vote_sight,
+                            update_sight=update_sight,
+                            mutation_enabled=mutation_enabled,
+                            mutation_strength=mutation_strength,
+                            mutation_probability=mutation_probability)
+
+        if show_map:
+            self.world.to_string(
+                show_neighborhood_details=show_neighborhood_details
+            )
 
 
-    def game_stats(self):
+    @classmethod
+    def run_simulation(cls,
+                        turns: int,
+                        endowment: int = 10,
+                        factor: float = 2,
+                        strategy: dict | None = None,
+                        width: int = 6,
+                        height: int = 6,
+                        num_neighborhoods: int = 4,
+                        councils: bool = True,
+                        vote_sight: int = 3,
+                        update_sight: int = 3,
+                        learning_rate: float | None = None,
+                        show_stats: bool = True,
+                        show_map: bool = True,
+                        show_neighborhood_details: bool = False,
+                        mutation_enabled: bool = True,
+                        mutation_strength: float = 0.05,
+                        mutation_probability: float = 1.0):
         """
-        Retrieve game stats
+        Create and run a game with configurable world size and turn count.
         """
-        n_rounds = self.history[-1].get("round_number")
-        average_contribution = sum([elt.get("average_contribution") for elt in self.history])/n_rounds
-        average_cooperation = self.history[-1].get("average_cooperation")
-        average_payoff = sum([elt.get("average_payoff") for elt in self.history])/n_rounds
-        public_goods = self.history[-1].get("public_goods")
 
-        print(f"\nGame stats after {n_rounds} turns:")
-        print(f"\tAverage contribution: {round(average_contribution, 2)}")
-        print(f"\tAverage cooperation: {round(average_cooperation, 2)}")
-        print(f"\tAverage payoff: {round(average_payoff, 2)}")
-        print(f"\tPublic goods: {round(public_goods, 2)}")
+        # define game rules
+        game = cls(endowment=endowment,
+                    factor=factor,
+                    strategy=strategy,
+                    width=width,
+                    height=height,
+                    num_neighborhoods=num_neighborhoods,
+                    learning_rate=learning_rate)
 
-        return average_payoff, average_contribution, average_cooperation, n_rounds
+        # run various turns
+        game.run_turns(turns=turns,
+                        councils=councils,
+                        vote_sight=vote_sight,
+                        update_sight=update_sight,
+                        show_stats=show_stats,
+                        show_map=show_map,
+                        show_neighborhood_details=show_neighborhood_details,
+                        mutation_enabled=mutation_enabled,
+                        mutation_strength=mutation_strength,
+                        mutation_probability=mutation_probability)
 
+        return game

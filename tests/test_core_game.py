@@ -11,11 +11,9 @@ def test_1():
 
     for i in range(5):
         pgg.run_round()
-    payoff, contribution, coop, n_turns = pgg.game_stats()
+    coop, n_turns = pgg.game_stats()
 
     # check the results
-    assert payoff == 124 # (20 + 40 + 80 + 160 + 320)/5 = 124
-    assert contribution == 62  # (20 + 40 + 80 + 160)/5 = 62
     assert coop == 1
     assert n_turns == 5
 
@@ -29,10 +27,8 @@ def test_2():
 
     for i in range(5):
         pgg.run_round()
-    payoff, contribution, coop, n_turns = pgg.game_stats()
+    coop, n_turns = pgg.game_stats()
 
-    assert payoff == 0
-    assert contribution == 0
     assert coop == 0
     assert n_turns == 5
 

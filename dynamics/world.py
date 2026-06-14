@@ -2,13 +2,19 @@ import random
 from collections import deque
 from dynamics.neighborhood import Neighborhood
 
-class World:
 
-    def __init__(self, width, height, num_neighborhoods):
+class World:
+    """
+    A class that keeps the topology of the game, meaning the location of agents and
+    their neighborhoods.
+    """
+    def __init__(self, width:int, height: int, num_neighborhoods: int):
 
         self.width = width
         self.height = height
         self.num_neighborhoods = num_neighborhoods
+
+        self.expelled_agents = [] # for expelled agents obviously
 
         # agents grid
         self.grid = [
@@ -22,12 +28,60 @@ class World:
             for _ in range(height)
         ]
 
+        # keeps info who was expelled from where
+        self.expelled_from = {}
+
+        # compute neighborhoods
         self.neighborhoods = {}
-
         for i in range(1, num_neighborhoods + 1):
-            self.neighborhoods[i] = Neighborhood(i)
+            self.neighborhoods[i] = Neighborhood(i, self)
 
+            # avoid circularity
+            from dynamics.council import Council
+            self.neighborhoods[i].council = Council(self.neighborhoods[i])
         self.generate_neighborhoods()
+
+
+    def to_string(self, show_neighborhood_details=False):
+        """
+        Prints an aligned grid where each column width matches the longest Agent ID.
+        Colors symbolize neighborhoods, while agents are displayed as their IDs.
+        """
+        max_id_len = 1
+        for row in self.grid:
+            for agent in row:
+                if agent is not None:
+                    max_id_len = max(max_id_len, len(str(agent.identifier)))
+
+
+        col_width = max_id_len + 1
+
+        def get_color_code(n_id):
+            if n_id is None: return "\033[0m"
+            return f"\033[38;5;{(n_id * 40) % 230 + 1}m"
+
+        reset = "\033[0m"
+        print("\n" + "=" * (self.width * (col_width + 1)))
+        for y in range(self.height):
+            row_str = []
+            for x in range(self.width):
+                n_id = self.map[y][x]
+                agent = self.grid[y][x]
+
+                # text content
+                content = str(agent.identifier) if agent is not None else "#"
+
+                padded_content = content.ljust(col_width)
+                color = get_color_code(n_id)
+                row_str.append(f"{color}{padded_content}{reset}")
+
+            print("".join(row_str))
+        print("=" * (self.width * (col_width + 1)) + "\n")
+
+        if show_neighborhood_details:
+            for v in self.neighborhoods.values():
+                v.to_string()
+
 
     def generate_neighborhoods(self):
         """
@@ -44,22 +98,15 @@ class World:
         used = set()
 
         for n_id in range(1, self.num_neighborhoods + 1):
-
             while True:
-
                 x = random.randint(0, self.width - 1)
                 y = random.randint(0, self.height - 1)
 
                 if (x, y) not in used:
-
                     used.add((x, y))
-
                     self.map[y][x] = n_id
-
                     self.neighborhoods[n_id].add_coordinate(x, y)
-
                     seeds.append((x, y, n_id))
-
                     break
 
         # ---------------------------------------------------
@@ -87,11 +134,9 @@ class World:
                 nx = x + dx
                 ny = y + dy
 
-                if (
-                    0 <= nx < self.width and
+                if (0 <= nx < self.width and
                     0 <= ny < self.height and
-                    self.map[ny][nx] is None
-                ):
+                    self.map[ny][nx] is None):
 
                     self.map[ny][nx] = n_id
 
@@ -99,18 +144,10 @@ class World:
 
                     frontier.append((nx, ny, n_id))
 
-        # fully connected guaranteed
-
-    def print_map(self):
-
-        for row in self.map:
-
-            print(" ".join(str(cell) for cell in row))
 
     def is_connected(self, neighborhood_id):
         """
-        Debug checker:
-        verifies neighborhood is one connected blob.
+        Debug checker: verifies neighborhood is one connected blob.
         """
 
         coords = self.neighborhoods[
@@ -153,43 +190,51 @@ class World:
 
         return len(visited) == len(coords)
 
-    def fill_with_agents(self, AgentClass, endowment=10, strategy="coop"):
+
+    def fill_with_agents(self, agents):
+        #  all possible coordinates
+        all_coords = [
+            (x, y) for y in range(self.height)
+            for x in range(self.width)
+            if self.grid[y][x] is None
+        ]
+
+        # random shuffle
+        random.shuffle(all_coords)
+
+        for agent in agents:
+            if not all_coords:
+                print("Warning: No more room in the world for agents!")
+                break
+
+            x, y = all_coords.pop()
+
+            # place on grid
+            self.grid[y][x] = agent
+            agent.x = x
+            agent.y = y
+
+            # register in neighborhood
+            n_id = self.map[y][x]
+            if n_id is not None:
+                self.neighborhoods[n_id].add_agent(agent)
+                # not necessary as function already points to the object
+                # agent.neighborhood = n_id
+
+
+    def get_agents_in_range(self, center_agent, sight: int):
         """
-        Fills every tile with an agent.
-        Each agent is placed at (x, y) and registered in its neighborhood.
+        Gets agents in range defined by sight but only if they are from the same
+        neighborhood.
         """
-
-        agent_id = 0
-
-        for y in range(self.height):
-            for x in range(self.width):
-                # choose strategy from the options randomly or not
-                agent = AgentClass(
-                    identifier=agent_id,
-                    endowment=endowment,
-                    strategy=strategy
-                )
-
-                agent.x = x
-                agent.y = y
-
-                self.grid[y][x] = agent
-
-                # assign to neighborhood
-                n_id = self.map[y][x]
-
-                if n_id is not None:
-                    self.neighborhoods[n_id].add_agent(agent)
-
-                agent_id += 1
-
-    def get_agents_in_range(self, center_agent, sight):
 
         nearby_agents = []
 
+        # center agent the agent that observes
         cx = center_agent.x
         cy = center_agent.y
 
+        # compute sight range
         min_x = max(0, cx - sight)
         max_x = min(self.width - 1, cx + sight)
 
@@ -200,13 +245,23 @@ class World:
             for x in range(min_x, max_x + 1):
 
                 agent = self.grid[y][x]
-
                 if agent is None:
                     continue
 
                 if agent == center_agent:
                     continue
-
                 nearby_agents.append(agent)
 
-        return nearby_agents
+        # filter by the same neighborhood
+        same_neighborhood_agents = [a for a in nearby_agents if a.neighborhood == center_agent.neighborhood]
+
+        return same_neighborhood_agents
+
+
+    def remove_agent_from_grid(self, agent):
+        if agent.x is not None and agent.y is not None:
+            self.grid[agent.y][agent.x] = None
+
+        agent.x = None
+        agent.y = None
+        agent.neighborhood = None
