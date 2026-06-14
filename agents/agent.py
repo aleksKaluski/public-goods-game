@@ -90,21 +90,25 @@ class Agent:
         print(f"Neighborhood: {self.neighborhood}")
         print("-"*20)
 
-    def vote(self, sight: int = 3):
+    def vote(self, sight: int = 3, social_voting: bool = False):
         nearby_agents = self.neighborhood.world.get_agents_in_range(self, sight)
         if not nearby_agents:
             return None
 
-        # vote against agents who contributed less than me
-        agents_with_lower_contribution = [
-            agent for agent in nearby_agents
-            if agent.contribution < self.contribution
-        ]
+        use_contribution_rate = (
+            social_voting and
+            self.strategy.name == "Cooperative"
+        )
+        # either get rate or contribution itself
+        def voting_value(agent):
+            if use_contribution_rate:
+                return agent.strategy.contribution_rate
+            return agent.contribution
 
-        if not agents_with_lower_contribution:
-            return None  # do not vote if everyone contributed at least as much as me
-
-        voted_agent = min(agents_with_lower_contribution, key=lambda agent: agent.contribution)
+        voted_agent = min(
+            nearby_agents,
+            key=voting_value
+        )
         return voted_agent
 
 

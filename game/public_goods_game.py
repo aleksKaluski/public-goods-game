@@ -17,7 +17,8 @@ class PublicGoodsGame:
                  width: int = 5,
                  height: int = 5,
                  num_neighborhoods:int = 2,
-                 learning_rate: float | None = None) -> None:
+                 learning_rate: float | None = None,
+                 social_voting: bool = False) -> None:
 
         # strategy is a dict of strings
         # that provides potential strategies of the agents and their number
@@ -45,6 +46,7 @@ class PublicGoodsGame:
         self.endowment = endowment
         self.factor = factor # factor that multiplies the payoff from public pot
         self.public_goods = 0
+        self.social_voting = social_voting
 
         # initialize the world and fill it with agents
         self.world = World(width=width, height=height, num_neighborhoods=num_neighborhoods)
@@ -68,16 +70,22 @@ class PublicGoodsGame:
         return payoff
 
 
-    def run_council_steps(self, sight: int = 5) -> None:
+    def run_council_steps(
+            self,
+            sight: int = 5,
+            social_voting: bool | None = None) -> None:
         """
         Run council phases after contributions and payoffs:
         votes, acceptance.
         """
         neighborhoods = list(self.world.neighborhoods.values())
+        if social_voting is None:
+            social_voting = self.social_voting
 
         for neighborhood in neighborhoods:
             neighborhood.council.hold_vote(
-                vote_sight=sight
+                vote_sight=sight,
+                social_voting=social_voting
             )
 
         for neighborhood in neighborhoods:
@@ -106,6 +114,7 @@ class PublicGoodsGame:
                   councils: bool = False,
                   vote_sight: int = 3,
                   update_sight: int = 3,
+                  social_voting: bool | None = None,
                   mutation_enabled: bool = True,
                   mutation_strength: float = 0.05,
                   mutation_probability: float = 1.0) -> None:
@@ -143,7 +152,10 @@ class PublicGoodsGame:
 
         # run council
         if councils:
-            self.run_council_steps(sight=vote_sight)
+            self.run_council_steps(
+                sight=vote_sight,
+                social_voting=social_voting
+            )
 
         # change the strategies
         self.update_agent_strategies(sight=update_sight,
@@ -161,6 +173,7 @@ class PublicGoodsGame:
                   councils: bool = False,
                   vote_sight: int = 3,
                   update_sight: int = 3,
+                  social_voting: bool | None = None,
                   show_stats: bool = True,
                   show_map: bool = True,
                   show_neighborhood_details: bool = False,
@@ -177,6 +190,7 @@ class PublicGoodsGame:
             self.run_round(councils=councils,
                             vote_sight=vote_sight,
                             update_sight=update_sight,
+                            social_voting=social_voting,
                             mutation_enabled=mutation_enabled,
                             mutation_strength=mutation_strength,
                             mutation_probability=mutation_probability)
@@ -200,6 +214,7 @@ class PublicGoodsGame:
                         vote_sight: int = 3,
                         update_sight: int = 3,
                         learning_rate: float | None = None,
+                        social_voting: bool = False,
                         show_stats: bool = True,
                         show_map: bool = True,
                         show_neighborhood_details: bool = False,
@@ -217,13 +232,15 @@ class PublicGoodsGame:
                     width=width,
                     height=height,
                     num_neighborhoods=num_neighborhoods,
-                    learning_rate=learning_rate)
+                    learning_rate=learning_rate,
+                    social_voting=social_voting)
 
         # run various turns
         game.run_turns(turns=turns,
                         councils=councils,
                         vote_sight=vote_sight,
                         update_sight=update_sight,
+                        social_voting=social_voting,
                         show_stats=show_stats,
                         show_map=show_map,
                         show_neighborhood_details=show_neighborhood_details,

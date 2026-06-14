@@ -25,7 +25,7 @@ class Council:
         self.last_expelled_agents = []
 
 
-    def hold_vote(self, vote_sight: int=3):
+    def hold_vote(self, vote_sight: int=3, social_voting: bool=False):
         """
         Decide which agents should be expelled. Radios of the vote = vote_sight.
         """
@@ -38,7 +38,10 @@ class Council:
         # an agent might vote for someone outside their neighborhood, but that vote is ignored
         for agent in self.neighborhood.agents:
             # should return a neighbor after searching the perimeter
-            target = agent.vote(sight=vote_sight)
+            target = agent.vote(
+                sight=vote_sight,
+                social_voting=social_voting
+            )
 
             if target is None:
                 continue
