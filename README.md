@@ -114,6 +114,7 @@ You can run a mock game by using `python main.py`. You can edit the given variba
 | `VOTE_SIGHT`                | `3`                             | Maximum distance an agent can inspect others while voting.            |
 | `UPDATE_SIGHT`              | `3`                             | Maximum distance an adaptive agent can inspect others while learning. |
 | `LEARNING_RATE`             | `0.2`                           | Learning rate used when updating the adaptive strategy.               |
+| `SOCIAL_VOTING`             | `False`                         | If enabled agent with always cooperate will look at contribution rate while voting              |
 
 
 ## 4) Experiments
