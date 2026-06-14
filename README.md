@@ -114,12 +114,31 @@ Therefore, the adaptive agent computes **the risk of being voted out** for each 
 
 ##### Mutation
 
-To ensure diversity in strategies, we introduced mutation mechanisms that occasionally alter an agent’s strategy parameters.
-
+To ensure diversity in strategies and prevent early stagnation in the game, we included a mutation function. In each turn, every agent mutates its contribution rate by a given mutation change (e.g., 50%). The mutation then occurs either toward a lower or higher contribution according to a mutation rate (e.g., 10%).
 
 ## 3) Quick Start
 
-You can run a mock game by using `python main.py`.
+You can run a mock game using the classes `experiment_#.py`. You can edit the given variables below to see what kind of results you can achieve. To use social voting switch to the branch dev.
+
+### Configuration
+
+|                             |                                 |                                                                       |
+| --------------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| `TURNS`                     | `200`                           | Total number of turns in the simulation.                              |
+| `WIDTH`                     | `10`                            | Width of the map.                                                     |
+| `HEIGHT`                    | `10`                            | Height of the map.                                                    |
+| `NUM_NEIGHBORHOODS`         | `4`                             | Number of neighborhoods on the map.                                   |
+| `ENDOWMENT`                 | `20`                            | Initial wealth assigned to each agent.                                |
+| `FACTOR`                    | `2`                             | Multiplier applied to the public pool before redistribution.          |
+| `STRATEGIES`                | `{"adaptive": 80, "coop": 100}` | Initial number of agents using each strategy.                         |
+| `SHOW_NEIGHBORHOOD_DETAILS` | `False`                         | Print neighborhood statistics after each round.                       |
+| `MUTATION_ENABLED`          | `True`                          | Enable evolutionary mutations.                                        |
+| `MUTATION_STRENGTH`         | `0.1`                           | Magnitude of change introduced by mutation.                           |
+| `MUTATION_PROBABILITY`      | `0.5`                           | Probability that an agent mutates.                                    |
+| `VOTE_SIGHT`                | `3`                             | Maximum distance an agent can inspect others while voting.            |
+| `UPDATE_SIGHT`              | `3`                             | Maximum distance an adaptive agent can inspect others while learning. |
+| `LEARNING_RATE`             | `0.2`                           | Learning rate used when updating the adaptive strategy.               |
+| `SOCIAL_VOTING`             | `False`                         | If enabled agent with always cooperate will look at contribution rate while voting instead of raw contribution value |
 
 
 ## 4) Experiments
