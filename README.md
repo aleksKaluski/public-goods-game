@@ -1,3 +1,14 @@
+# Public Goods Game
+This repository implements the Public Goods Game.
+
+AI statement: a local model Quen3 4B 2507 was used solely for simple grammatical correction of README file. Although
+very long, **the documentation is not AI-generated slop, so please read it ;)**
+
+Mistral, Gemini 2.5 flash and Clause Sonnet 4.6
+were employed to help with the implementation, but their help was mostly
+conceptual and based on code refinement, designing project structure and finding errors.  However, there is esp. part
+of the code that has been made by Mistral and is properly labelled.
+
 ## 1) Theoretical Introduction
 
 ### What is the Public Goods Game?
@@ -17,8 +28,6 @@ This leads us to the state of the game called **Nash equilibrium** — a situati
 Thus, how is it possible that people pay taxes? We have organized a complex system of rewards and punishments. We incentivize players to contribute, since free riding is severely punished.
 
 If you are interested in how we modelled all of these phenomena, please refer to the technical documentation below.
-
----
 
 ## 2) Project Structure
 
@@ -103,6 +112,7 @@ The `council.py` consists of one of these systems of rewards and punishments tha
 * There is a `threshold` of votes (default = 5) that must be exceeded to expel someone. It means that in small neighborhoods it might be hard to expel someone, while in large neighborhoods it is very easy.  
 * Agents vote for the lowest contributor in their `vote_sight` range, however only the votes within the neighborhood count. It means that an agent can vote for someone from another neighborhood, but the vote will be ignored.  
 * The council accepts the richest expelled agent (if there is a place on the board).
+ 
 
 #### Strategy: `AdaptiveStrategy`
 
@@ -110,19 +120,9 @@ The `council.py` consists of one of these systems of rewards and punishments tha
 
 Since we outlined the core mechanisms of the game, we can now return to the `AdaptiveStrategy`. An agent that implements it learns from its neighbors by **adjusting contribution rate**. However, since we have a built-in voting mechanism, a naive imitation would be unreasonable. The richest agents are those who never contribute anything, so they get kicked out quickly.
 
-Therefore, the adaptive agent computes **the risk of being voted out** for each of her neighbors — that is, the fraction of neighbors with higher contributions — and imitates only the neighbors whose risk is below 50%. Then, the agent adjusts her `contribution_rate` towards the richest neighbor with a learning rate of 0.2.
+Therefore, the adaptive agent computes **the risk of being voted out** for each of her neighbors — that is, the fraction of neighbors with higher contributions — and imitates only the neighbors whose risk is below 50%. Then, the agent adjusts her `contribution_rate` towards the richest neighbor with a learning rate of 0.2.  To ensure diversity in strategies, we introduced mutation mechanisms that occasionally alter an agent’s strategy parameters.
 
-##### Mutation
-
-To ensure diversity in strategies, we introduced mutation mechanisms that occasionally alter an agent’s strategy parameters.
-
-
-## 3) Quick Start
-
-You can run a mock game by using `python main.py`.
-
-
-## 4) Experiments
+## 3) Experiments
 
 In order to test the framework, we conducted a series of experiments. Please keep in mind that the framework was not created for one specific task. It is rather a game-theoretic experimental engine.
 
@@ -161,7 +161,7 @@ In both conditions, the agents were distributed among 4 neighborhoods (the prese
 The voting mechanism works! Because defective agents are expelled from communities (and accepted by others), they cannot spread their defective strategy, and the average cooperation rate is higher.
 
 
-### Experiment III: Local vs Global Pot
+### Experiment III: Local vs Global Pot (`experiment_2.py`)
 
 How should we pay taxes? Which model is better? A global model where the whole society puts some money into the public pot, or a framework where you contribute to your local community? We conducted another experiment to test this.
 
@@ -176,7 +176,7 @@ ii) get expelled faster.
 <img src="plots/1_global_pot.png" alt="8x8 Grid Condition 1" width="400"/> <img src="plots/7_local_pots.png" alt="8x8 Grid Condition 2" width="400"/>
 
 
-## 5) Closing Remarks and Controversies
+## 4) Closing Remarks and Controversies
 
 There are two controversies arising from these experiments:  
 1. Replicability is sometimes (especially in the case of Experiment II) not very strong, since the positions of agents are randomized.  
@@ -196,3 +196,5 @@ af829 91d5f #     #     #     8cabf #     285f9
 ```
 
 We tried various strategies to address the problem: custom voting thresholds for each neighborhood and adding conditions such as "I will vote against the agent if he contributes less than me". Unfortunately, in adaptive communities, the between-subject variance is too high, and we always ended up with desolate, depopulated worlds. That's why we did not implement anything else for the 1-neighborhood scenario.
+
+Thanks for reading! Pay your taxes ;) 
