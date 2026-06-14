@@ -91,9 +91,29 @@ Since we outlined the core mechanisms of the game, we can now return to the `Ada
 Therefore, the adaptive agent computes **the risk of being voted out** for each of her neighbors — that is, the fraction of neighbors with higher contributions — and imitates only the neighbors whose risk is below 50%. Then, the agent adjusts her `contribution_rate` towards the richest neighbor with a learning rate of 0.2.  
 
 ##### Mutation  
-To ensure diversity in strategies...
+To ensure diversity in strategies and prevent early stagnations in the game we included a mutation function. In each turn every agent mutates their contribution rate by a given mutation change (eg. 50%). Then the mutations occur in either towards less or mor contribution given by a mutation rate (eg. %10).  
 
 ## 3) Quick Start  
-You can run a mock game by using `python main.py`.
+You can run a mock game by using `python main.py`. You can edit the given varibales to see what kind of results you can achieve.
+
+# Configuration
+
+|                             |                                 |                                                                       |
+| --------------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| `TURNS`                     | `200`                           | Total number of turns in the simulation.                              |
+| `WIDTH`                     | `10`                            | Width of the map.                                                     |
+| `HEIGHT`                    | `10`                            | Height of the map.                                                    |
+| `NUM_NEIGHBORHOODS`         | `4`                             | Number of neighborhoods on the map.                                   |
+| `ENDOWMENT`                 | `20`                            | Initial wealth assigned to each agent.                                |
+| `FACTOR`                    | `2`                             | Multiplier applied to the public pool before redistribution.          |
+| `STRATEGIES`                | `{"adaptive": 80, "coop": 100}` | Initial number of agents using each strategy.                         |
+| `SHOW_NEIGHBORHOOD_DETAILS` | `False`                         | Print neighborhood statistics after each round.                       |
+| `MUTATION_ENABLED`          | `True`                          | Enable evolutionary mutations.                                        |
+| `MUTATION_STRENGTH`         | `0.1`                           | Magnitude of change introduced by mutation.                           |
+| `MUTATION_PROBABILITY`      | `0.5`                           | Probability that an agent mutates.                                    |
+| `VOTE_SIGHT`                | `3`                             | Maximum distance an agent can inspect others while voting.            |
+| `UPDATE_SIGHT`              | `3`                             | Maximum distance an adaptive agent can inspect others while learning. |
+| `LEARNING_RATE`             | `0.2`                           | Learning rate used when updating the adaptive strategy.               |
+
 
 ## 4) Experiments
