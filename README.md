@@ -118,7 +118,7 @@ To ensure diversity in strategies and prevent early stagnation in the game, we i
 
 ## 3) Quick Start
 
-You can run a mock game using the classes `experiment_#.py`. You can edit the given variables below to see what kind of results you can achieve. To use social voting switch to the branch dev.
+You can run a mock game using the classes `experiment_#.py`. You can edit the given variables below to see what kind of results you can achieve. To use social voting switch to the dev branch.
 
 ### Configuration
 
@@ -129,11 +129,11 @@ You can run a mock game using the classes `experiment_#.py`. You can edit the gi
 | `HEIGHT`                    | `10`                            | Height of the map.                                                    |
 | `NUM_NEIGHBORHOODS`         | `4`                             | Number of neighborhoods on the map.                                   |
 | `ENDOWMENT`                 | `20`                            | Initial wealth assigned to each agent.                                |
-| `FACTOR`                    | `2`                             | Multiplier applied to the public pool before redistribution.          |
+| `FACTOR`                    | `2`                             | Factor of the endowment, how much the contributed money gets multiplied before redistrubiton          |
 | `STRATEGIES`                | `{"adaptive": 80, "coop": 100}` | Initial number of agents using each strategy.                         |
-| `SHOW_NEIGHBORHOOD_DETAILS` | `False`                         | Print neighborhood statistics after each round.                       |
-| `MUTATION_ENABLED`          | `True`                          | Enable evolutionary mutations.                                        |
-| `MUTATION_STRENGTH`         | `0.1`                           | Magnitude of change introduced by mutation.                           |
+| `SHOW_NEIGHBORHOOD_DETAILS` | `False`                         | Print neighborhood statistics after end.                              |
+| `MUTATION_ENABLED`          | `True`                          | Enable mutations.                                                     |
+| `MUTATION_STRENGTH`         | `0.1`                           | Magnitude of change to contribution rate by a mutation.               |
 | `MUTATION_PROBABILITY`      | `0.5`                           | Probability that an agent mutates.                                    |
 | `VOTE_SIGHT`                | `3`                             | Maximum distance an agent can inspect others while voting.            |
 | `UPDATE_SIGHT`              | `3`                             | Maximum distance an adaptive agent can inspect others while learning. |
